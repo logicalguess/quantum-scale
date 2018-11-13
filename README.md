@@ -1,1 +1,1 @@
-# Modeling Quantum Computing in Scala
+# Quantum Computing Modeling in Scala
