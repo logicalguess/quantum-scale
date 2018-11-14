@@ -79,7 +79,7 @@ def get_probs(n, cfg):
 
 
 if __name__ == "__main__":
-    for i in range(1, 10):
+    for i in range(1, 11):
         hist = get_counts(i, 'sim')
         print("F(", i, ") = ", len(hist))
         #visualization.plot_histogram(hist)

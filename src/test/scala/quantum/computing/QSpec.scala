@@ -57,13 +57,13 @@ class QSpec extends FlatSpec {
       "|1>" -> List("|0>" -> sq, "|1>" -> -sq)
     )
 
-    val s0 = QState[String](S0)
+    val s0 = new QState[String](S0)
     val step = s0 >>= H
     println(step)
 
     assert(step.bins.toSet == Set("|0>" -> sq, "|1>" -> sq))
 
-    val s1 = QState[String](S1)
+    val s1 = new QState[String](S1)
     val step1 = s1 >>= H
     println(step1)
 
