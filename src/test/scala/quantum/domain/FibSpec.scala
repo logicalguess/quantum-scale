@@ -28,8 +28,8 @@ class FibSpec extends FlatSpec {
     def fib(n: Int): QState = {
       var state = pure(Word.fromInt(0, n))
       for (i <- 0 until n) state = state >>= wire(i, H)
-      for (i <- 0 until n - 1)  state = state >>= wire(i + 1, Ry(-math.Pi/4)) >>= controlled(i, i + 1, X) _ >>=
-        wire(i + 1, Ry(math.Pi/4)) >>= controlled(i, i + 1, X) _ //>>= wire(i + 1, Z)
+      for (i <- 0 until n - 1)  state = state >>= wire(i + 1, Ry(-math.Pi/4)) _ >>= controlled(i, i + 1, X) _ >>=
+        wire(i + 1, Ry(math.Pi/4)) _ >>= controlled(i, i + 1, X) _ //>>= wire(i + 1, Z)
 
       state
     }

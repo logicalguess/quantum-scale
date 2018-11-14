@@ -8,7 +8,7 @@ import quantum.domain.QState._
 
 import scala.language.reflectiveCalls
 
-class SingleQbitSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
+class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
   import Complex._
 
   implicit val qbits: Arbitrary[QState] = Arbitrary {
@@ -128,10 +128,28 @@ class SingleQbitSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert(y(S1).toString == h(S1).toString)
   }
 
+  "Ry(pi/2)" should "equal HZ" in forAll { state:  QState =>
+
+    val y: QState = state >>= Ry(math.Pi/2)
+    val h: QState = state >>= Z >>= H
+
+    assert(y(S0).toString == h(S0).toString)
+    assert(y(S1).toString == h(S1).toString)
+  }
+
   "XRy(pi/2)" should "equal H" in forAll { state:  QState =>
 
     val y: QState = state >>= Ry(math.Pi/2) >>= X
     val h: QState = state >>= H
+
+    assert(y(S0).toString == h(S0).toString)
+    assert(y(S1).toString == h(S1).toString)
+  }
+
+  "Ry(pi/2)" should "equal XH" in forAll { state:  QState =>
+
+    val y: QState = state >>= Ry(math.Pi/2)
+    val h: QState = state >>= H >>= X
 
     assert(y(S0).toString == h(S0).toString)
     assert(y(S1).toString == h(S1).toString)
