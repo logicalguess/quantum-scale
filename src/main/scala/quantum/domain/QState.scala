@@ -1,8 +1,8 @@
 package quantum.domain
 
 case class QState(override val bins: List[(Word, Complex)]) extends quantum.computing.QState[Word](bins) {
-  private def map(f: Word => Word): QState = {
-    QState(combineBinsRule(bins.map { case (a, z) => (f(a), z) }))
+  override def map(f: Word => Word): QState = {
+    QState(super.map(f).bins)
   }
 
   def flatMap(f: Word => QState): QState = QState(super.flatMap(w => f(w).bins).bins)
@@ -36,7 +36,7 @@ case class QState(override val bins: List[(Word, Complex)]) extends quantum.comp
 
   def ><(that: QState): Word => QState = this.outer(that)
 
-  def *:(that: QState): QState = {
+  def tensor(that: QState): QState = {
     for {
       x <- that
       y <- this

@@ -47,8 +47,8 @@ object Gate {
   def wire(t: Int, g: Word => QState)(s: Word): QState = {
     s match {
       case Word(Nil) => pure(Word(Nil))
-      case Word(h :: rest) if t == 0 => g(h) *: pure(Word(rest))
-      case Word(h :: rest) => pure(Word(h)) *: wire(t - 1, g)(Word(rest))
+      case Word(h :: rest) if t == 0 => g(h) tensor pure(Word(rest))
+      case Word(h :: rest) => pure(Word(h)) tensor wire(t - 1, g)(Word(rest))
     }
   }
 
@@ -62,8 +62,8 @@ object Gate {
         case Word(Nil) => pure(Word(Nil))
         case _ if t <= c => throw new Error("control has to be less than target")
         case Word(S0 :: rest) if c == 0 => pure(Word(S0 :: rest))
-        case Word(S1 :: rest) if c == 0 => s1 *: wire(t - 1, g)(Word(rest))
-        case Word(h :: rest) => pure(Word(h)) *: helper(c - 1, t - 1, g)(Word(rest))
+        case Word(S1 :: rest) if c == 0 => s1 tensor wire(t - 1, g)(Word(rest))
+        case Word(h :: rest) => pure(Word(h)) tensor helper(c - 1, t - 1, g)(Word(rest))
       }
     }
 

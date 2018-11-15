@@ -1,6 +1,6 @@
 package quantum.computing
 
-trait UState[+This <: UState[This, B, V], B, V] {
+trait UState[This <: UState[This, B, V], B, V] {
   protected val bins: List[(B, V)]
   protected val m: Monoid[V]
 
@@ -16,6 +16,10 @@ trait UState[+This <: UState[This, B, V], B, V] {
   def create(bins: List[(B, V)]): This
 
   def normalize(): This = create(normalizeStateRule(bins))
+
+  def map(f: B => B): This = {
+    create(combineBinsRule(bins.map { case (b, v) => (f(b), v) }))
+  }
 
   def flatMap(f: B => List[(B, V)]): This = {
     val updates: List[(B, V)] = bins.flatMap({ case (b, v) => distributionRule((b, v), f(b)) })
