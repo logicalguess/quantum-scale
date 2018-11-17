@@ -67,8 +67,8 @@ object Gate {
     }
   }
 
-  val controlledRy: (Int, Int, Double) => Gate = (c, t, theta) => wire(t, Ry(-theta/2)) _  >=> controlled(c, t, X) _ >=>
-    wire(t, Ry(theta/2)) _ >=> controlled(c, t, X) _
+  val controlledRy: (Int, Int, Double) => Gate = (c, t, theta) => wire(t, Ry(theta/2)) _  >=> controlled(c, t, X) _ >=>
+    wire(t, Ry(-theta/2)) _ >=> controlled(c, t, X) _
 
 
 }
