@@ -38,8 +38,8 @@ case class QState(override val bins: List[(Word, Complex)]) extends quantum.comp
 
   def tensor(that: QState): QState = {
     for {
-      x <- that
-      y <- this
+      x <- this
+      y <- that
     } yield Word(x.letters ++ y.letters)
   }
 

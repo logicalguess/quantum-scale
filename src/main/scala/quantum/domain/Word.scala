@@ -2,11 +2,12 @@ package quantum.domain
 
 case class Word(letters: List[Symbol])  {
   val label = letters.map(_.label).mkString
+
+  override def toString: String = label
 }
 
 object Word {
   def apply(letters: Symbol*) = new Word(letters.toList)
-
 
   def fromInt(i: Int, width: Int): Word = {
     def helper(i: Int, width: Int, acc: List[Symbol]): List[Symbol] = {
