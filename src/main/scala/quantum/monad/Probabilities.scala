@@ -1,6 +1,8 @@
-package quantum.computing
+package quantum.monad
 
-case class PState[B](bins: List[(B, Double)]) extends UState[PState[B], B, Double] {
+import quantum.computing.Monoid
+
+class Probabilities[B] extends HistogramMonad[B, Double] {
   val m = new Monoid[Double] {
     override val empty: Double = 1.0
     override val combine: (Double, Double) => Double = _ * _
@@ -19,5 +21,4 @@ case class PState[B](bins: List[(B, Double)]) extends UState[PState[B], B, Doubl
     }
   }
 
-  override def create(bins: List[(B, Double)]) = PState(bins)
 }
