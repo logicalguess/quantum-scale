@@ -1,10 +1,8 @@
 package quantum.algorithms
 
 import org.scalatest.FlatSpec
-import quantum.domain.Gate.{H, wire}
-import quantum.domain.{QState, S1, Word}
+import quantum.domain.{S1, Word}
 import quantum.domain.QState._
-import quantum.domain.Gate._
 import quantum.algorithms.Grover._
 
 
