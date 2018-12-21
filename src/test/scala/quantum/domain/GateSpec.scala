@@ -104,6 +104,17 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert(z(S1).toString == x(S1).toString)
   }
 
+  "HRz(theta) = Rx(theta)H" should "be true for any state" in forAll {  ts: (Double, QState) =>
+    val theta = ts._1
+    val state = ts._2
+
+    val x: QState = state >>= H >>= Rx(theta)
+    val z: QState = state >>= Rz(theta) >>= H
+
+    assert(z(S0).toString == x(S0).toString)
+    assert(z(S1).toString == x(S1).toString)
+  }
+
   "H = iRz(pi/2)Rx(pi/2)Rz(pi/2)" should "be true for any state" in forAll {  state:  QState =>
 
     val h: QState = state >>= H
@@ -258,6 +269,26 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
 
     assert(r(S0).toString == (s(S1) * Complex.one.rot(-math.Pi/2)).toString)
     assert(r(S1).toString == (s(S0) * Complex.one.rot(-math.Pi/2)).toString)
+  }
+
+  "Rx(theta)(S0)" should "cos(theta)*|0> + i*sin(theta)*|1>" in forAll { theta: Double =>
+    val r: QState = Rx(theta)(S0)
+
+    assert(r(S0) == toComplex(math.cos(-theta/2)))
+    assert(r(S1) == math.sin(-theta/2) * Complex.i)
+  }
+
+  "Rx(theta)" should "take a*|0> + b*|1> to (a*cos(-theta/2) + i*b*sin(-theta/2))*|0> + (b*cos(-theta/2) + i*a*sin(-theta/2))*|1>" in forAll { ts: (Double, QState) =>
+    val theta = ts._1
+    val state = ts._2
+
+    val r: QState = Rx(theta)(state)
+
+    val t0 = state(S0) * math.cos(-theta/2) + state(S1) * math.sin(-theta/2) * Complex.i
+    val t1 = state(S1) * math.cos(-theta/2) + state(S0) * math.sin(-theta/2) * Complex.i
+
+    assert(r(S0) == t0)
+    assert(r(S1) == t1)
   }
 
   "Rx(theta)" should "be a weighted average of I and Rx(pi)" in forAll { ts: (Double, QState) =>
