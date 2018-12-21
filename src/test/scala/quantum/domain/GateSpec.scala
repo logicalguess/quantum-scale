@@ -93,6 +93,18 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert(HZH(s)(S1).toString == X(s)(S1).toString)
   }
 
+  "Rz(theta)H = HRx(theta)" should "be true for any state" in forAll {  ts: (Double, QState) =>
+    val theta = ts._1
+    val state = ts._2
+
+    val z: QState = state >>= H >>= Rz(theta)
+    val x: QState = state >>= Rx(theta) >>= H
+
+    assert(z(S0).toString == x(S0).toString)
+    assert(z(S1).toString == x(S1).toString)
+  }
+
+
   "Rz(theta)" should "rotate the amplitude of |0> by -theta/2 and the amplitude of |1> by theta/2" in forAll { ts: (Double, QState) =>
     val theta = ts._1
     val state = ts._2
