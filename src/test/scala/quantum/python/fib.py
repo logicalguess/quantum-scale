@@ -20,7 +20,8 @@ def build_circuit(n):
     qc = QuantumCircuit(q, c)
 
     for i in range(0, n):
-        qc.h(q[i])
+        #qc.h(q[i])
+        qc.ry(np.pi/2, q[i])
 
     for i in range(0,  n - 1):
         cry(-np.pi/2, qc, q[i], q[i + 1])
