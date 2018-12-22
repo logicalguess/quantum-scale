@@ -100,6 +100,13 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert(ZXY(s)(S1).toString == (s(S1)*Complex.i).toString)
   }
 
+  def XYZ(s: QState): QState = s >>= Z >>= Y >>= X
+
+  "XYZ = i*I" should "be true for any state" in forAll { s: QState =>
+    assert(XYZ(s)(S0).toString == (s(S0)*Complex.i).toString)
+    assert(XYZ(s)(S1).toString == (s(S1)*Complex.i).toString)
+  }
+
   "Rz(theta)H = HRx(theta)" should "be true for any state" in forAll {  ts: (Double, QState) =>
     val theta = ts._1
     val state = ts._2
@@ -341,9 +348,28 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     val y: QState = Ry(math.Pi)(z)
     val x: QState = Rx(math.Pi)(y)
 
-
     assert(x(S0).toString == (-s(S0)).toString)
     assert(x(S1).toString == (-s(S1)).toString)
+  }
+
+  "Rx(pi)Rz(pi)Ry(pi)" should "equal I (quaternion basis)" in forAll { s: QState =>
+
+    val y: QState = Ry(math.Pi)(s)
+    val z: QState = Rz(math.Pi)(y)
+    val x: QState = Rx(math.Pi)(z)
+
+    assert(x(S0).toString == (s(S0)).toString)
+    assert(x(S1).toString == (s(S1)).toString)
+  }
+
+  "Rz(pi)Rx(pi)Ry(pi)" should "equal -I (quaternion basis)" in forAll { s: QState =>
+
+    val y: QState = Ry(math.Pi)(s)
+    val x: QState = Rx(math.Pi)(y)
+    val z: QState = Rz(math.Pi)(x)
+
+    assert(z(S0).toString == (-s(S0)).toString)
+    assert(z(S1).toString == (-s(S1)).toString)
   }
 
   "Z" should "equal i*Rz(pi)" in forAll { s: QState =>
