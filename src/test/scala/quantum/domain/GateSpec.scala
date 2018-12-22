@@ -93,6 +93,13 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert(HZH(s)(S1).toString == X(s)(S1).toString)
   }
 
+  def ZXY(s: QState): QState = s >>= Y >>= X >>= Z
+
+  "ZXY = i*I" should "be true for any state" in forAll { s: QState =>
+    assert(ZXY(s)(S0).toString == (s(S0)*Complex.i).toString)
+    assert(ZXY(s)(S1).toString == (s(S1)*Complex.i).toString)
+  }
+
   "Rz(theta)H = HRx(theta)" should "be true for any state" in forAll {  ts: (Double, QState) =>
     val theta = ts._1
     val state = ts._2
