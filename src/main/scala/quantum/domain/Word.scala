@@ -29,4 +29,7 @@ object Word {
 
     helper(s.letters, 0)
   }
+
+  def toInt(t: List[Symbol] => List[Symbol])(s: Word): Int = toInt(Word(t(s.letters)))
+
 }
