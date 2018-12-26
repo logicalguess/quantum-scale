@@ -30,26 +30,27 @@ object Grover {
     (s >< s) * 2.0 - I
   }
 
-  def invL(qs: List[Int])(s: QState): QState = {
+  def inv(qs: List[Int])(w: Word): QState = {
     val size = qs.size
-    var state = s
-    for (j <- (0 to size - 1))
-      state = state >>= wire(qs(j), H) _ >>= wire(qs(j), X)
-
-
+    var state = pure(w)
+    for (j <- (0 to size - 1)) {
+      state = state >>= wire(qs(j), H) _ >>= wire(qs(j), X) _
+    }
     state = state >>= controlled((0 to size - 2).map(qs).toSet, qs(size - 1), Z)
-    for (j <- (0 to size - 1))
-      state = state >>= wire(qs(j), X) _ >>= wire(qs(j), H)
-
+    for (j <- (0 to size - 1)) {
+      state = state >>= wire(qs(j), X) _ >>= wire(qs(j), H) _
+    }
     -state
   }
 
-  def inv(s: Word): QState =
-    invL((0 to s.letters.size - 2).toList)(pure(s))
+  def inv(w: Word): QState =
+    inv((0 to w.letters.size - 2).toList)(w)
+
 
   def grover(f: Int => Boolean)(width: Int): QState = {
     val r = (math.Pi * math.sqrt(math.pow(2, width)) / 4).toInt
-    var state = pure(Word(List.fill(width)(S0) ++ List(S1)))
+    val w = Word(List.fill(width)(S0) ++ List(S1))
+    var state = pure(w)
 
     for (j <- (0 to width))
       state = state >>= wire(j, H)
