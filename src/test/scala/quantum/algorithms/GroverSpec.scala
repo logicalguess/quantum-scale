@@ -14,7 +14,7 @@ class GroverSpec extends FlatSpec {
       val w = Word.fromInt(i, bits)
 
       val state = pure(w) >>= refl(bits)
-      val state1 = pure(Word(w.letters ++ List(S1))) >>= inv _
+      val state1 = pure(Word(w.letters ++ List(S1))) >>= inv((0 to w.letters.size - 1).toList) _
 
       assert(state1.bins.map({ case (w, a) => (Word(w.letters.take(bits)).label, a.toString) }).toMap == state.bins.map({ case (w, a) => (w.label, a.toString)}).toMap)
     }
