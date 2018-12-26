@@ -36,6 +36,8 @@ object Gate {
 
   def Rz(theta: Double): Gate = I * math.cos(theta / 2) - Z * Complex.i * math.sin(theta / 2)
 
+  def R(theta: Double): Gate = (s0 >< s0) + (s1 * Complex.one.rot(theta) >< s1)
+
   def wire(t: Int, g: Word => QState)(s: Word): QState = {
     s match {
       case Word(Nil) => pure(Word(Nil))

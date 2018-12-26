@@ -151,6 +151,15 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert(a(S1).toString == b(S1).toString)
   }
 
+  "ZRx(pi/2)" should "= 1/sqrt(2)*|0> + i/sqrt(2)*|1>" in forAll {  theta: Double =>
+
+    val e1 = QState(List(Word(S0) -> Complex(1/math.sqrt(2), 0), Word(S1) -> Complex.i * 1/math.sqrt(2)))
+    val e = s0 >>= Rx(math.Pi/2) >>= Z
+
+    assert(e(S0).toString == Complex(1/math.sqrt(2), 0).toString)
+    assert(e(S1).toString ==  Complex(0, 1/math.sqrt(2)).toString)
+  }
+
   "H = iRz(pi/2)Rx(pi/2)Rz(pi/2)" should "be true for any state" in forAll {  state:  QState =>
 
     val h: QState = state >>= H
@@ -184,6 +193,14 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
 
     assert(y(S0) == t0)
     assert(y(S1) == t1)
+  }
+
+  "Ry(theta)(S0)" should "= cos(theta/2)*|0> + sin(theta/2)*|1>" in forAll { theta: Double =>
+
+    val y: QState = Ry(theta)(S0)
+
+    assert(y(S0) == toComplex(math.cos(theta/2)))
+    assert(y(S1) == toComplex(math.sin(theta/2)))
   }
 
   "Ry(pi/2)Z" should "equal H" in forAll { state:  QState =>
@@ -307,7 +324,7 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert(r(S1).toString == (s(S0) * Complex.one.rot(-math.Pi/2)).toString)
   }
 
-  "Rx(theta)(S0)" should "cos(theta)*|0> + i*sin(theta)*|1>" in forAll { theta: Double =>
+  "Rx(theta)(S0)" should "cos(theta)*|0> - i*sin(theta/2)*|1>" in forAll { theta: Double =>
     val r: QState = Rx(theta)(S0)
 
     assert(r(S0) == toComplex(math.cos(-theta/2)))
