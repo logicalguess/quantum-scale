@@ -180,6 +180,29 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert(c(S1).toString == d(S1).toString)
   }
 
+  "Rx(theta) eigenvectors" should "are +/-1/sqrt(2)*|0> - 1/sqrt(2)*|1> with eigenvalues cos(theta/2) +/- i*sin(theta/2)" in forAll { theta: Double =>
+
+    // 1/sqrt(2)*|0> - 1/sqrt(2)*|1>
+    val e1 = s0 >>= Ry(math.Pi/2) >>= Z
+    //val e1 = QState(List(Word(S0)->math.sqrt(0.5), Word(S1)-> -math.sqrt(0.5)))
+
+    val a: QState = e1 >>= Rx(theta)
+    val b: QState = e1 * Complex(math.cos(theta/2), math.sin(theta/2))
+
+    assert(a(S0).toString == b(S0).toString)
+    assert(a(S1).toString == b(S1).toString)
+
+    // -1/sqrt(2)*|0> - 1/sqrt(2)*|1>
+    val e2 = s0 >>= Ry(-math.Pi/2) >>= X >>= Z
+    //val e2 = QState(List(Word(S0)-> -math.sqrt(0.5), Word(S1)-> -math.sqrt(0.5)))
+
+    val c: QState = e2 >>= Rx(theta)
+    val d: QState = e2 * Complex(math.cos(theta/2), -math.sin(theta/2))
+
+    assert(c(S0).toString == d(S0).toString)
+    assert(c(S1).toString == d(S1).toString)
+  }
+
   "H = iRz(pi/2)Rx(pi/2)Rz(pi/2)" should "be true for any state" in forAll {  state:  QState =>
 
     val h: QState = state >>= H
