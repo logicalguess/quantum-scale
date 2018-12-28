@@ -291,6 +291,17 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert(t(S1).toString == r(S1).toString)
   }
 
+  "R(theta)" should "equal e^(i*theta/2)*Rz(theta)" in forAll { ts: (Double, QState) =>
+    val theta = ts._1
+    val state = ts._2
+
+    val r: QState = state >>= R(theta)
+    val rz: QState = state >>= Rz(theta) * Complex.one.rot((theta/2))
+
+    assert(rz(S0).toString == r(S0).toString)
+    assert(rz(S1).toString == r(S1).toString)
+  }
+
   "Rz(theta)" should "be a weighted average of I and Rz(pi)" in forAll { ts: (Double, QState) =>
     val theta = ts._1
     val state = ts._2
