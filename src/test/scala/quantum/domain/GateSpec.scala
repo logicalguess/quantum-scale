@@ -151,12 +151,45 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert(a(S1).toString == b(S1).toString)
   }
 
-  "ZRx(pi/2)" should "= 1/sqrt(2)*|0> + i/sqrt(2)*|1>" in forAll {  theta: Double =>
+  "Rx(pi/2)|0>" should "= 1/sqrt(2)*|0> - i/sqrt(2)*|1>" in forAll {  theta: Double =>
 
-    val e = s0 >>= Rx(math.Pi/2) >>= Z
+    val e = s0 >>= Rx(math.Pi/2)
+
+    assert(e(S0).toString == Complex(1/math.sqrt(2), 0).toString)
+    assert(e(S1).toString ==  Complex(0, -1/math.sqrt(2)).toString)
+  }
+
+  "Rx(-pi/2)|0>" should "= 1/sqrt(2)*|0> + i/sqrt(2)*|1>" in forAll {  theta: Double =>
+
+    val e = s0 >>= Rx(-math.Pi/2)
 
     assert(e(S0).toString == Complex(1/math.sqrt(2), 0).toString)
     assert(e(S1).toString ==  Complex(0, 1/math.sqrt(2)).toString)
+  }
+
+  "R(-pi/2)H|0>" should "= 1/sqrt(2)*|0> - i/sqrt(2)*|1>" in forAll {  theta: Double =>
+
+    val e = s0 >>= H >>= R(-math.Pi/2)
+
+    assert(e(S0).toString == Complex(1/math.sqrt(2), 0).toString)
+    assert(e(S1).toString ==  Complex(0, -1/math.sqrt(2)).toString)
+  }
+
+  "R(pi/2)H|0>" should "= 1/sqrt(2)*|0> + i/sqrt(2)*|1>" in forAll {  theta: Double =>
+
+    val e = s0 >>= H >>= R(math.Pi/2)
+
+    assert(e(S0).toString == Complex(1/math.sqrt(2), 0).toString)
+    assert(e(S1).toString ==  Complex(0, 1/math.sqrt(2)).toString)
+  }
+
+  "Z = R(pi)" should "be true for any state" in forAll {  state: QState =>
+
+    val a: QState = state >>= Z
+    val b: QState = state >>= R(math.Pi)
+
+    assert(a(S0).toString == b(S0).toString)
+    assert(a(S1).toString == b(S1).toString)
   }
 
   "Ry(theta) eigenvectors" should "are +/-i/sqrt(2)*|0> + 1/sqrt(2)*|1> with eigenvalues cos(theta/2) +/- i*sin(theta/2)" in forAll { theta: Double =>
