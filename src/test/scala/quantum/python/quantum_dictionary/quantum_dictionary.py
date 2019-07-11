@@ -140,7 +140,7 @@ class QDictionary():
 
     def get_value_for_key(self, key = None):
         circuit = self.__build_circuit(self.key_bits, self.value_bits, self.f, key)
-        probs = get_probs((circuit, None, None), 'sim')
+        probs = get_probs((circuit, None, None), 'sim', False)
 
         from qiskit.tools import visualization
         visualization.plot_histogram(probs)
