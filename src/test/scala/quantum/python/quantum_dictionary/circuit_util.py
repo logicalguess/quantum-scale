@@ -70,7 +70,7 @@ def cxzx(qc, q_control, q_target):
     qc.cx(q_control, q_target)
     qc.cz(q_control, q_target)
     qc.cx(q_control, q_target)
-    #qc.cz(q_control, q_target)
+    # qc.cz(q_control, q_target)
 
 
 def grover(m, qc, q, e, a):
@@ -131,6 +131,23 @@ def oracle0(qc, c, q, e, a):
 
     for i in range(0, len(q)):
         qc.x(q[i])
+
+
+def oracle0_trick(qc, c, q, e, a):
+    qc.x(a[0])
+    qc.h(a[0])
+
+    for i in range(0, len(q)-1):
+        qc.x(q[i])
+
+    controlled(qc, [c[i] for i in range(len(c))] + [q[i] for i in range(len(q))], e, a)
+    # controlled(qc, [c[i] for i in range(len(c))] + [q[i] for i in range(len(q))], e, a, c_gate = cxzx)
+
+    for i in range(0, len(q)-1):
+        qc.x(q[i])
+
+    qc.h(a[0])
+    qc.x(a[0])
 
 
 def diffusion(qc, c, q, e):
