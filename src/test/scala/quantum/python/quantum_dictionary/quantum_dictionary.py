@@ -139,7 +139,7 @@ class QDictionary():
 
 
     def get_value_for_key(self, key = None):
-        circuit = self._QDictionary__build_circuit(self.key_bits, self.value_bits, self.f, key)
+        circuit = self.__build_circuit(self.key_bits, self.value_bits, self.f, key)
         probs = get_probs((circuit, None, None), 'sim')
 
         from qiskit.tools import visualization
@@ -154,7 +154,7 @@ class QDictionary():
         print("Outcomes", ordered_outcomes)
 
     def get_zero_count(self):
-        circuit = self._QDictionary__build_circuit_count(self.key_bits, self.value_bits, self.f)
+        circuit = self.__build_circuit_count(self.key_bits, self.value_bits, self.f)
         probs = get_probs((circuit, None, None), 'sim', False)
         ordered_probs = sorted(probs.items(), key=lambda x: x[1], reverse=True)
         print("number of outcomes:", len(ordered_probs))
