@@ -5,7 +5,7 @@ from circuit_util import controlled_ry
 
 from quantum_dictionary import QDictionary
 
-class QSumDictionary(QDictionary):
+class QQUBODictionary(QDictionary):
     # A Quantum Dictionary built from a function
 
     @staticmethod
@@ -22,8 +22,22 @@ class QSumDictionary(QDictionary):
             for k, v in d.items():
                 controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i+1) * v, [key[k[0]], key[k[1]]] + [value[i]], extra, ancilla)
 
+    @staticmethod
+    def unprepare(d, circuit, key, value, ancilla, extra):
+        for i in range(len(value)):
+            for j in range(len(key)):
+                controlled_ry(circuit, -1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[j],
+                              [key[j], value[i]], extra, ancilla[0])  # sum on powers of 2
+
+        for j in range(len(key)):
+            del d[j]
+
+        for i in range(len(value)):
+            for k, v in d.items():
+                controlled_ry(circuit, -1/2 ** len(value) * 2 * np.pi * 2 ** (i+1) * v, [key[k[0]], key[k[1]]] + [value[i]], extra, ancilla)
+
     def __init__(self, key_bits, value_bits, d):
-        QDictionary.__init__(self, key_bits, value_bits, 0, d, QSumDictionary.prepare)
+        QDictionary.__init__(self, key_bits, value_bits, 0, d, QQUBODictionary.prepare, QQUBODictionary.unprepare)
 
     def get_sum(self):
         self.get_value_for_key(2 ** self.key_bits - 1)
@@ -39,7 +53,7 @@ if __name__ == "__main__":
         n_key = 2
         n_value = 5
 
-        qd = QSumDictionary(n_key, n_value, d)
+        qd = QQUBODictionary(n_key, n_value, d)
         qd.get_value_for_key(3)
 
     def test_qubo_3():
@@ -50,7 +64,7 @@ if __name__ == "__main__":
         n_key = 3
         n_value = 6
 
-        qd = QSumDictionary(n_key, n_value, d)
+        qd = QQUBODictionary(n_key, n_value, d)
         v = qd.get_value_for_key(3)
 
         k = v[0:n_key]
