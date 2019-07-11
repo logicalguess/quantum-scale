@@ -12,15 +12,22 @@ class QFunctionDictionary(QDictionary):
             for k in range(2**len(key)):
                 on_match_ry(len(key), k, circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i+1) * f[k], [key[j] for j in range(0, len(key))] + [value[i]], extra, ancilla)
 
-    def __init__(self, key_bits, value_bits, f):
-        QDictionary.__init__(self, key_bits, value_bits, 0, f, QFunctionDictionary.prepare)
+    @staticmethod
+    def unprepare(f, circuit, key, value, ancilla, extra):
+        for i in range(len(value)):
+            for k in range(2**len(key)):
+                on_match_ry(len(key), k, circuit, -1/2 ** len(value) * 2 * np.pi * 2 ** (i+1) * f[k], [key[j] for j in range(0, len(key))] + [value[i]], extra, ancilla)
 
-    def __init__(self, key_bits, value_bits):
+    def __init__(self, key_bits, value_bits, precision_bits, f):
+        QDictionary.__init__(self, key_bits, value_bits, precision_bits, f, QFunctionDictionary.prepare, QFunctionDictionary.unprepare)
+
+    @staticmethod
+    def random(key_bits, value_bits):
         rs = np.random.random(2**value_bits)
         p = rs/rs.sum()
         freq = QFunctionDictionary.distribution_to_frequency(key_bits, p)[1]
         f = QFunctionDictionary.frequency_to_function(key_bits, freq)
-        QDictionary.__init__(self, key_bits, value_bits, 0, f, QFunctionDictionary.prepare)
+        return QDictionary(key_bits, value_bits, 0, f, QFunctionDictionary.prepare)
 
     @staticmethod
     def distribution_to_frequency(key_bits, p):
@@ -73,8 +80,18 @@ if __name__ == "__main__":
 
         f = [k*k for k in range(2**n_key)]
 
-        qd = QFunctionDictionary(n_key, n_value, f)
+        qd = QFunctionDictionary(n_key, n_value, 0, f)
         qd.get_value_for_key(3)
+
+    def test_zero_value_count():
+        n_key = 2
+        n_value = 2
+        n_precision = 3
+
+        f = [0, 0, 0, 1]
+
+        qd = QFunctionDictionary(n_key, n_value, n_precision, f)
+        qd.get_zero_count()
 
     def test_distribution_value():
         n_key = 3
@@ -83,13 +100,14 @@ if __name__ == "__main__":
         # f = [k*k for k in range(2**n_key)]
         f = [2, 3, 5, 7, 7, 7, 2, 1]
 
-        qd = QFunctionDictionary(n_key, n_value, f)
+        qd = QFunctionDictionary(n_key, n_value, 0, f)
         qd.get_value_distribution()
 
     def test_random_distribution():
-        qd = QFunctionDictionary(5, 3)
+        qd = QFunctionDictionary.random(5, 3)
         qd.get_value_distribution()
 
     # test_value_for_key()
+    test_zero_value_count()
     # test_distribution_value()
-    test_random_distribution()
+    # test_random_distribution()
