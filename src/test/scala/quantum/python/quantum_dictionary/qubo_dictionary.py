@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-from circuit_util import controlled_ry
+from circuit_util import controlled_ry, cry
 
 from quantum_dictionary import QDictionary
 
@@ -11,6 +11,8 @@ class QQUBODictionary(QDictionary):
     @staticmethod
     def prepare(d, circuit, key, value, ancilla, extra):
         for i in range(len(value)):
+            if d.get(-1, 0) > 0:
+                cry(1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[-1], circuit, value[i], ancilla[0])
             for j in range(len(key)):
                 controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[j],
                               [key[j], value[i]], extra, ancilla[0])  # sum on powers of 2
@@ -38,13 +40,11 @@ class QQUBODictionary(QDictionary):
     def get_sum(self):
         self.get_value_for_key(2 ** self.key_bits - 1)
 
+
 if __name__ == "__main__":
 
     def test_qubo_2():
-        d = {}
-        d[0] = 12
-        d[1] = 1
-        d[(0,1)] = 3
+        d = {0: 12, 1: 1, (0, 1): 3}
 
         n_key = 2
         n_value = 5
@@ -70,9 +70,9 @@ if __name__ == "__main__":
         print("QUBO value for " + k, " = ", v)
 
     def test_qubo_count():
-        # f(x_0, x_1, x_2) = 12*x_0 + 1*x_1 - 15*x_2 + 3*x_0*x_1 - 9*x_1*x_2
-        # f(0, 1, 1) = 1 - 15 - 9 = -23
-        d = {0: 12, 1: 1, 2: -15, (0, 1): 3, (1, 2): -9}
+        # f(x_0, x_1, x_2) = 23 + 12*x_0 + 1*x_1 - 15*x_2 + 3*x_0*x_1 - 9*x_1*x_2
+        # f(0, 1, 1) = 23 + 1 - 15 - 9 = 0
+        d = {-1: 23, 0: 12, 1: 1, 2: -15, (0, 1): 3, (1, 2): -9}
 
         n_key = 3
         n_value = 6
