@@ -152,6 +152,7 @@ class QDictionary():
         ordered_outcomes = sorted(outcomes.items(), key=lambda x: x[1], reverse=True)
 
         print("Outcomes", ordered_outcomes)
+        return ordered_probs[0][0]
 
     def get_zero_count(self):
         circuit = self.__build_circuit_count(self.key_bits, self.value_bits, self.f)

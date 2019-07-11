@@ -22,6 +22,10 @@ class QSumDictionary(QDictionary):
     def get_sum(self):
         self.get_value_for_key(2 ** self.key_bits - 1)
 
+    def is_sum_negative(self):
+        sum = self.get_value_for_key(2 ** self.key_bits - 1)
+        return True if sum[self.key_bits] == '1' else False
+
 
 if __name__ == "__main__":
     def test_sum():
@@ -31,11 +35,19 @@ if __name__ == "__main__":
         n_value = math.ceil(np.log2(sum(f)))
 
         qd = QSumDictionary(n_key, n_value, f)
-        # qd.get_value(3)
         qd.get_sum()
 
+    def test_compare():
+        f = [12, -38]
+
+        n_key = len(f)
+        n_value = math.ceil(np.log2(max(f))) + 2
+
+        qd = QSumDictionary(n_key, n_value, f)
+        print(qd.is_sum_negative())
+
     def test_binomial_distribution():
-        f = [1 for i in range(5)] # binomial
+        f = [1 for _ in range(5)] # binomial
         # f = [2**i for i in range(5)] # uniform
         # f = [i*i for i in range(5)] # uniform
         # f = [i for i in range(5)] #?
@@ -47,4 +59,5 @@ if __name__ == "__main__":
         qd.get_value_distribution()
 
     # test_sum()
-    test_binomial_distribution()
+    test_compare()
+    # test_binomial_distribution()
