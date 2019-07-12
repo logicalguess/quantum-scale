@@ -53,8 +53,7 @@ class QDictionary():
 
         return circuit
 
-
-    def __build_circuit_count(self, n_qbits, c_qbits, f):
+    def __build_circuit_count(self, n_qbits, c_qbits, f, oracle = oracle0):
         key = QuantumRegister(n_qbits)
         value = QuantumRegister(c_qbits)
         ancilla = QuantumRegister(1)
@@ -89,7 +88,7 @@ class QDictionary():
             for _ in range(2**i):
                 # oracle
                 op()
-                oracle0(circuit, [precision[i]], value, extra, ancilla)
+                oracle(circuit, [precision[i]], value, extra, ancilla)
                 op_i()
 
                 # diffusion
@@ -155,7 +154,10 @@ class QDictionary():
         return ordered_probs[0][0]
 
     def get_zero_count(self):
-        circuit = self.__build_circuit_count(self.key_bits, self.value_bits, self.f)
+        return self.get_count(oracle0)
+
+    def get_value_count(self, oracle):
+        circuit = self.__build_circuit_count(self.key_bits, self.value_bits, self.f, oracle)
         probs = get_probs((circuit, None, None), 'sim', False)
         ordered_probs = sorted(probs.items(), key=lambda x: x[1], reverse=True)
         print("number of outcomes:", len(ordered_probs))
