@@ -93,20 +93,22 @@ class QDictionary():
 
                 # diffusion
                 diffusion(circuit, [precision[i]], key, extra)
-
         # inverse fourier tranform
         iqft(circuit, [precision[i] for i in range(len(precision))])
 
         return circuit
 
     def __process(self, n_bits, c_bits, probs):
+        entries = {}
         outcomes = {}
         for b, c in probs.items():
             key = int(b[0:n_bits], 2)
             value = int(b[n_bits:n_bits + c_bits], 2)
-            print(key, " = ", b[0:n_bits], " -> ", b[n_bits:n_bits + c_bits], " = ", value)
+            entries[key] = '%d' % key + " = " + b[0:n_bits] + " -> " + b[n_bits:n_bits + c_bits] + " = " + '%d' % value
             outcomes['%d' %  key + " -> " + '%d' % value] = c
 
+        for v in sorted(entries.items(), key=lambda x: x[1]):
+            print(v[1])
         return outcomes
 
     def __process_values(self, n_bits, c_bits, probs):
