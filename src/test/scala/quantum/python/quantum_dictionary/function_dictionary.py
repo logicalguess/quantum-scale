@@ -1,6 +1,6 @@
 import numpy as np
 
-from circuit_util import on_match_ry, controlled, cxzx, cry, czxzx, cx, controlled_X
+from circuit_util import on_match_ry, controlled, cxzx, cry, czxzx, cx, controlled_X, oracle_first_bit_one
 from quantum_dictionary import QDictionary
 
 class QFunctionDictionary(QDictionary):
@@ -93,48 +93,34 @@ if __name__ == "__main__":
         qd = QFunctionDictionary(n_key, n_value, n_precision, f)
         qd.get_zero_count()
 
-    def test_zero_value_count1():
+    def test_negative_value_count():
         n_key = 3
         n_value = 3
-        n_precision = 5
+        n_precision = 4
 
-        f = [0, 0, -1, 0, 1, 1, 0, 0]
+        f = [0, 0, -1, 0, -1, 1, 0, 0]
 
         qd = QFunctionDictionary(n_key, n_value, n_precision, f)
         qd.get_value_for_key()
-        qd.get_zero_count()
+        # qd.get_zero_count()
+        qd.get_negative_value_count()
 
     def oracle(qc, c, q, e, a):
-        # qc.x(a[0])
-        # qc.h(a[0])
-
-        # qc.x(q[0])
-        # qc.x(q[1])
-        # qc.x(q[2])
-
-        # controlled(qc, [c[i] for i in range(len(c))] + [q[i] for i in range(len(q))], e, a, c_gate = cxzx)
-        controlled(qc, [c[i] for i in range(len(c))] + [q[0]], e, a, c_gate = czxzx)
-        # controlled_X(qc, [c[i] for i in range(len(c))] + [q[i] for i in range(len(q))], e, a)
-        # controlled_X(qc, [c[i] for i in range(len(c))] + [q[0]], e, a)
-         # qc.ccx(c[0], q[0], a[0])
-
-        # qc.x(q[0])
-        # qc.x(q[1])
-        # qc.x(q[2])
-
-        # qc.h(a[0])
-        # qc.x(a[0])
+        qc.x(q[0])
+        controlled(qc, [c[i] for i in range(len(c))] + [q[i] for i in range(len(q))], e, a, c_gate = czxzx)
+        # controlled(qc, [c[i] for i in range(len(c))] + [q[0]], e, a, c_gate = czxzx)
+        qc.x(q[0])
 
     def test_value_count():
         n_key = 2
         n_value = 2 # values between -2**(n_value-1) and 2**(n_value-1) - 1
-        n_precision = 5
+        n_precision = 4
 
-        f = [0, 0, 0, -1]
+        f = [1, 0, 1, -1]
 
         qd = QFunctionDictionary(n_key, n_value, n_precision, f)
         qd.get_value_for_key()
-        qd.get_value_count(oracle)
+        qd.get_count_for_value(1)
 
     def test_distribution_value():
         n_key = 3
@@ -151,7 +137,7 @@ if __name__ == "__main__":
         qd.get_value_distribution()
 
     # test_value_for_key()
-    # test_zero_value_count1()
+    test_negative_value_count()
     # test_distribution_value()
     # test_random_distribution()
-    test_value_count()
+    # test_value_count()

@@ -3,7 +3,7 @@ from qiskit import QuantumRegister, QuantumCircuit
 import numpy as np
 import math
 
-from circuit_util import controlled_ry, qft, iqft, grover, oracle0, diffusion, cxzx, on_match_ry
+from circuit_util import controlled_ry, qft, iqft, grover, oracle0, diffusion, cxzx, on_match_ry, get_oracle, oracle_first_bit_one
 from util import get_probs, plot_histogram
 
 
@@ -28,12 +28,8 @@ class QDictionary():
         extra = QuantumRegister(max(n_qbits, c_qbits))
         circuit = QuantumCircuit(key, value, ancilla, extra)
 
-
-        for i in range(n_qbits):
-            circuit.h(key[i])
-
-        for i in range(c_qbits):
-            circuit.h(value[i])
+        circuit.h(key)
+        circuit.h(value)
 
         if search_key is not None:
             iterations = 1 if n_qbits == 2 else 2**(math.floor(n_qbits/2))
@@ -57,19 +53,14 @@ class QDictionary():
         key = QuantumRegister(n_qbits)
         value = QuantumRegister(c_qbits)
         ancilla = QuantumRegister(1)
-        extra = QuantumRegister(6)
+        extra = QuantumRegister(7)
         precision = QuantumRegister(self.precision_bits)
         circuit = QuantumCircuit(precision, key, value, ancilla, extra)
 
+        circuit.h(key)
+        circuit.h(value)
 
-        for i in range(n_qbits):
-            circuit.h(key[i])
-
-        for i in range(c_qbits):
-            circuit.h(value[i])
-
-        for i in range(len(precision)):
-            circuit.h(precision[i])
+        circuit.h(precision)
 
         def op():
             # controlled rotations
@@ -84,6 +75,10 @@ class QDictionary():
             # controlled rotations
             self.unpopulate(f, circuit, key, value, ancilla, extra)
 
+        circuit.rx(np.pi/2, ancilla[0])
+        circuit.z(ancilla[0])
+        circuit.x(ancilla[0])
+
         for i in range(len(precision)):
             for _ in range(2**i):
                 # oracle
@@ -92,9 +87,12 @@ class QDictionary():
                 op_i()
 
                 # diffusion
-                diffusion(circuit, [precision[i]], key, extra)
+                # diffusion(circuit, [precision[i]], [key[i] for i in range(len(key))], extra) # if f(0) = 0
+                diffusion(circuit, [precision[i]], [key[i] for i in range(len(key))] + [value[i] for i in range(len(value))], extra)
         # inverse fourier tranform
         iqft(circuit, [precision[i] for i in range(len(precision))])
+
+        circuit.rx(-np.pi/2, ancilla[0])
 
         return circuit
 
@@ -138,7 +136,6 @@ class QDictionary():
 
         print("Value Distribution", ordered_freq)
 
-
     def get_value_for_key(self, key = None):
         circuit = self.__build_circuit(self.key_bits, self.value_bits, self.f, key)
         probs = get_probs((circuit, None, None), 'sim', False)
@@ -156,7 +153,13 @@ class QDictionary():
         return ordered_probs[0][0]
 
     def get_zero_count(self):
-        return self.get_count(oracle0)
+        return self.get_value_count(oracle0)
+
+    def get_count_for_value(self, v):
+        return self.get_value_count(get_oracle(v))
+
+    def get_negative_value_count(self):
+        return self.get_value_count(oracle_first_bit_one)
 
     def get_value_count(self, oracle):
         circuit = self.__build_circuit_count(self.key_bits, self.value_bits, self.f, oracle)

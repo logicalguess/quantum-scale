@@ -109,6 +109,26 @@ def grover(m, qc, q, e, a):
     qc.x(a[0])
 
 
+def get_oracle(m):
+    def oracle(qc, c, q, e, a):
+        n = len(q)
+        for i in range(0, n):
+            if is_bit_not_set(m, i):
+                qc.x(q[n - i - 1])
+
+        controlled(qc, [c[i] for i in range(len(c))] + [q[i] for i in range(len(q))], e, a, c_gate = czxzx)
+
+        for i in range(0, n):
+            if is_bit_not_set(m, i):
+                qc.x(q[n - i - 1])
+
+    return oracle
+
+
+def oracle_first_bit_one(qc, c, q, e, a):
+    controlled(qc, [c[i] for i in range(len(c))] + [q[0]], e, a, c_gate = czxzx)
+
+
 def qft(qc, q):
     for j in range(len(q)):
         qc.h(q[j])
