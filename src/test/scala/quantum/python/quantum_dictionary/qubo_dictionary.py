@@ -44,13 +44,71 @@ class QQUBODictionary(QDictionary):
 if __name__ == "__main__":
 
     def test_qubo_2():
-        d = {0: 12, 1: 1, (0, 1): 3}
+        d = {0: -2, 1: 1, (0, 1): 3}
 
         n_key = 2
-        n_value = 5
+        n_value = 3
+        n_precision = 3
 
-        qd = QQUBODictionary(n_key, n_value, 0, d)
-        qd.get_value_for_key(3)
+        qd = QQUBODictionary(n_key, n_value, n_precision, d)
+        # qd.get_value_for_key(3)
+        qd.get_value_for_key()
+        qd.get_negative_value_count()
+        # qd.get_count_for_value(-2)
+
+    def test_qubo_2_1():
+        d = {0: -2, 1: -1, (0, 1): 3}
+
+        n_key = 2
+        n_value = 3
+        n_precision = 3
+
+        qd = QQUBODictionary(n_key, n_value, n_precision, d)
+        # qd.get_value_for_key(3)
+        qd.get_value_for_key()
+        # 0 = 00 -> 000 = 0
+        # 1 = 01 -> 111 = 7
+        # 2 = 10 -> 110 = 6
+        # 3 = 11 -> 000 = 0
+
+        # qd.get_count_for_value(-3) #0
+        # qd.get_count_for_value(-5) #0
+        qd.get_count_for_value(-2) # 1
+        # qd.get_count_for_value(-1) # 1
+        # qd.get_count_for_value(0) # 4 instead of 2
+
+        # qd.get_negative_value_count() # 4 instead of 2
+
+    def test_qubo_2_2():
+        d = {0: -2, 1: -1, (0, 1): 3}
+
+        n_key = 2
+        n_value = 3
+        n_precision = 3
+
+        d[-1] = 2
+        qd = QQUBODictionary(n_key, n_value, n_precision, d)
+        qd.get_value_for_key()
+        # 0 = 00 -> 010 = 2
+        # 1 = 01 -> 001 = 1
+        # 2 = 10 -> 000 = 0
+        # 3 = 11 -> 010 = 2
+
+        qd.get_negative_value_count()
+        # sines =  [(4.0, 0.50016), (0.0, 0.5)]
+        # Best Estimate =  4
+
+        d[-1] = 4
+        qd = QQUBODictionary(n_key, n_value, n_precision, d)
+        qd.get_value_for_key()
+        # 0 = 00 -> 100 = 4
+        # 1 = 01 -> 011 = 3
+        # 2 = 10 -> 010 = 2
+        # 3 = 11 -> 100 = 4
+
+        qd.get_negative_value_count()
+        # sines =  [(0.0, 0.5), (8.0, 0.5)]
+        # Best Estimate =  0
 
     def test_qubo_3():
         # f(x_0, x_1, x_2) = 12*x_0 + 1*x_1 - 15*x_2 + 3*x_0*x_1 - 9*x_1*x_2
@@ -60,7 +118,7 @@ if __name__ == "__main__":
         n_key = 3
         n_value = 6
 
-        qd = QQUBODictionary(n_key, n_value, 0, d)
+        qd = QQUBODictionary(n_key, n_value, 6, d)
         v = qd.get_value_for_key(3)
 
         k = v[0:n_key]
@@ -69,23 +127,11 @@ if __name__ == "__main__":
             v = v - 2**n_value
         print("QUBO value for " + k, " = ", v)
 
-    def test_qubo_count():
-        # f(x_0, x_1, x_2) = 23 + 12*x_0 + 1*x_1 - 15*x_2 + 3*x_0*x_1 - 9*x_1*x_2
-        # f(0, 1, 1) = 23 + 1 - 15 - 9 = 0
-        d = {-1: 23, 0: 12, 1: 1, 2: -15, (0, 1): 3, (1, 2): -9}
-
-        n_key = 3
-        n_value = 5
-        n_precision = 3
-
-        qd = QQUBODictionary(n_key, n_value, n_precision, d)
-        # qd.get_value_for_key()
-        qd.get_zero_count()
-
     # test_qubo_2()
-    test_qubo_3()
+    # test_qubo_2_1()
+    test_qubo_2_2()
+    # test_qubo_3()
     # test_qubo_count()
-
 
 # 0  =  000  ->  000000  =  0
 # 6  =  110  ->  010000  =  16
