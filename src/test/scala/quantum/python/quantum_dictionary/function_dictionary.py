@@ -96,9 +96,9 @@ if __name__ == "__main__":
     def test_negative_value_count():
         n_key = 3
         n_value = 3
-        n_precision = 4
+        n_precision = 5
 
-        f = [0, 0, -1, 0, -1, 1, 0, 0]
+        f = [0, -2, -1, 0, -1, 1, 0, 0]
 
         qd = QFunctionDictionary(n_key, n_value, n_precision, f)
         qd.get_value_for_key()
