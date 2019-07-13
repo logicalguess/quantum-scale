@@ -75,10 +75,11 @@ if __name__ == "__main__":
         d = {-1: 23, 0: 12, 1: 1, 2: -15, (0, 1): 3, (1, 2): -9}
 
         n_key = 3
-        n_value = 6
-        n_precision = 4
+        n_value = 5
+        n_precision = 3
 
         qd = QQUBODictionary(n_key, n_value, n_precision, d)
+        # qd.get_value_for_key()
         qd.get_zero_count()
 
     # test_qubo_2()
