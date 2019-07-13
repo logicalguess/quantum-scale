@@ -53,7 +53,7 @@ class QDictionary():
         key = QuantumRegister(n_qbits)
         value = QuantumRegister(c_qbits)
         ancilla = QuantumRegister(1)
-        extra = QuantumRegister(7)
+        extra = QuantumRegister(6)
         precision = QuantumRegister(self.precision_bits)
         circuit = QuantumCircuit(precision, key, value, ancilla, extra)
 
@@ -87,8 +87,8 @@ class QDictionary():
                 op_i()
 
                 # diffusion
-                # diffusion(circuit, [precision[i]], [key[i] for i in range(len(key))], extra) # if f(0) = 0
-                diffusion(circuit, [precision[i]], [key[i] for i in range(len(key))] + [value[i] for i in range(len(value))], extra)
+                diffusion(circuit, [precision[i]], [key[i] for i in range(len(key))], extra) # if f(0) = 0
+                # diffusion(circuit, [precision[i]], [key[i] for i in range(len(key))] + [value[i] for i in range(len(value))], extra)
         # inverse fourier tranform
         iqft(circuit, [precision[i] for i in range(len(precision))])
 

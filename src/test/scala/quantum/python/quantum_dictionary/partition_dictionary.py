@@ -32,12 +32,26 @@ class QPartitionDictionary(QDictionary):
 
 
 if __name__ == "__main__":
-    f = [1, 1, -1] # 2
-    # f = [2, 2, 2, -3] # 0
+    def test_zero_sum_subsets():
+        f = [1, 1, -1] # 2
+        # f = [2, 2, 2, -3] # 0
 
-    n_key = len(f)
-    n_value = 3
-    n_precision = 5
+        n_key = len(f)
+        n_value = 3
+        n_precision = 5
 
-    qd = QPartitionDictionary(n_key, n_value, n_precision, f)
-    print("Number of zero sum subsets = ", qd.get_zero_sum_count())
+        qd = QPartitionDictionary(n_key, n_value, n_precision, f)
+        print("Number of zero sum subsets = ", qd.get_zero_sum_count())
+
+    def test_partition():
+        f = [1, 2, 3, 0] # 4
+
+        n_key = len(f)
+        n_value = 4
+        n_precision = 5
+
+        qd = QPartitionDictionary(n_key, n_value, n_precision, f)
+        print("Number of half sum subsets = ", qd.get_count_for_value(3))
+
+    # test_zero_sum_subsets()
+    test_partition()
