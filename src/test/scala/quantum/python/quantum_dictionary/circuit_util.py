@@ -56,6 +56,9 @@ def cry(theta, qc, q_control, q_target):
 def controlled_ry(qc, theta, ctrl, anc, tgt):
     return controlled(qc, ctrl, anc, tgt, c_gate = lambda qc, c, t: cry(theta, qc, c, t))
 
+def cx(qc, q_control, q_target):
+    qc.cx(q_control, q_target)
+
 
 # multiply by -1
 def czxzx(qc, q_control, q_target):
@@ -106,7 +109,6 @@ def grover(m, qc, q, e, a):
     qc.x(a[0])
 
 
-
 def qft(qc, q):
     for j in range(len(q)):
         qc.h(q[j])
@@ -127,7 +129,7 @@ def oracle0(qc, c, q, e, a):
     for i in range(0, len(q)):
         qc.x(q[i])
 
-    controlled(qc, [c[i] for i in range(len(c))] + [q[i] for i in range(len(q))], e, a, c_gate = cxzx)
+    controlled(qc, [c[i] for i in range(len(c))] + [q[i] for i in range(len(q))], e, a, c_gate = czxzx)
 
     for i in range(0, len(q)):
         qc.x(q[i])
