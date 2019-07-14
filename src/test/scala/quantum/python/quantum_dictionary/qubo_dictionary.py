@@ -136,13 +136,14 @@ if __name__ == "__main__":
         if v >= 2**(n_value-1):
             v = v - 2**n_value
         print("QUBO value for " + k, " = ", v) # -23
-        qd.get_negative_value_count() # 4
-        # sines =  [(4.0, 1.0035199999999862)]
+
+        # qd.get_negative_value_count() # 4
+        # sines =  [(4.0, 1.003512)]
         # Best Estimate =  4
 
     # test_qubo_2()
-    # test_qubo_2_1()
+    test_qubo_2_1()
     # test_qubo_2_2()
-    test_qubo_3()
+    # test_qubo_3()
 
 
