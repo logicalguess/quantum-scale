@@ -60,13 +60,13 @@ class QDictionary():
 
         circuit.h(precision)
 
-        def op():
+        def A():
             # controlled rotations
             self.prepare(f, circuit, key, value, ancilla, extra)
             # inverse fourier to retrieve best approximations
             iqft(circuit, [value[i] for i in range(c_qbits)])
 
-        def op_i():
+        def A_dagger():
             # fourier transform
             qft(circuit, [value[i] for i in range(c_qbits)])
 
@@ -80,9 +80,9 @@ class QDictionary():
         for i in range(len(precision)):
             for _ in range(2**i):
                 # oracle
-                op()
+                A()
                 oracle(circuit, [precision[i]], value, extra, ancilla)
-                op_i()
+                A_dagger()
 
                 # diffusion
                 diffusion(circuit, [precision[i]], [key[i] for i in range(len(key))], extra) # if f(0) = 0
