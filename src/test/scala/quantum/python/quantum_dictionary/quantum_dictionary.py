@@ -16,10 +16,8 @@ class QDictionary():
         if precision_bits > 0:
             self.precision_bits = precision_bits
         self.f = f
-        self.populate = prepare
-        self.unpopulate = unprepare
-
-
+        self.prepare = prepare
+        self.unprepare = unprepare
 
     def __build_circuit(self, n_qbits, c_qbits, f, search_key = None):
         key = QuantumRegister(n_qbits)
@@ -40,7 +38,7 @@ class QDictionary():
         circuit.z(ancilla[0])
         circuit.x(ancilla[0])
 
-        self.populate(f, circuit, key, value, ancilla, extra)
+        self.prepare(f, circuit, key, value, ancilla, extra)
 
         # inverse fourier tranform
         iqft(circuit, [value[i] for i in range(len(value))])
@@ -64,7 +62,7 @@ class QDictionary():
 
         def op():
             # controlled rotations
-            self.populate(f, circuit, key, value, ancilla, extra)
+            self.prepare(f, circuit, key, value, ancilla, extra)
             # inverse fourier to retrieve best approximations
             iqft(circuit, [value[i] for i in range(c_qbits)])
 
@@ -73,7 +71,7 @@ class QDictionary():
             qft(circuit, [value[i] for i in range(c_qbits)])
 
             # controlled rotations
-            self.unpopulate(f, circuit, key, value, ancilla, extra)
+            self.unprepare(f, circuit, key, value, ancilla, extra)
 
         circuit.rx(np.pi/2, ancilla[0])
         circuit.z(ancilla[0])
@@ -96,18 +94,22 @@ class QDictionary():
 
         return circuit
 
-    def __process(self, n_bits, c_bits, probs):
+    def __process(self, n_bits, c_bits, probs, neg=False):
+        kvs = {}
         entries = {}
         outcomes = {}
         for b, c in probs.items():
             key = int(b[0:n_bits], 2)
             value = int(b[n_bits:n_bits + c_bits], 2)
+            kvs[key] = value
+            if neg is True and value >= 2**(c_bits-1):
+                value = value - 2**c_bits
             entries[key] = '%d' % key + " = " + b[0:n_bits] + " -> " + b[n_bits:n_bits + c_bits] + " = " + '%d' % value
             outcomes['%d' %  key + " -> " + '%d' % value] = c
 
         for v in sorted(entries.items(), key=lambda x: x[1]):
             print(v[1])
-        return outcomes
+        return sorted(kvs.items(), key=lambda x: x[1]), outcomes
 
     def __process_values(self, n_bits, c_bits, probs):
         value_freq = {}
@@ -136,7 +138,7 @@ class QDictionary():
 
         print("Value Distribution", ordered_freq)
 
-    def get_value_for_key(self, key = None):
+    def get_value_for_key(self, key, neg = False):
         circuit = self.__build_circuit(self.key_bits, self.value_bits, self.f, key)
         probs = get_probs((circuit, None, None), 'sim', False)
 
@@ -146,7 +148,7 @@ class QDictionary():
         ordered_probs = sorted(probs.items(), key=lambda x: x[1], reverse=True)
         print("Probabilities: ", ordered_probs)
 
-        outcomes = self._QDictionary__process(self.key_bits, self.value_bits, probs)
+        _, outcomes = self._QDictionary__process(self.key_bits, self.value_bits, probs, neg)
         ordered_outcomes = sorted(outcomes.items(), key=lambda x: x[1], reverse=True)
 
         print("Outcomes", ordered_outcomes)
@@ -179,7 +181,7 @@ class QDictionary():
 
         sines = {}
         for k, v in counts:
-            key = 2**self.value_bits*np.round(np.cos(np.pi*k/2**self.precision_bits)**2, 4)
+            key = 2**self.key_bits*np.round(np.cos(np.pi*k/2**self.precision_bits)**2, 4)
             sines[key] = sines.get(key, 0) + v
         sorted_sines = sorted(sines.items(), key=lambda x: x[1], reverse=True)
         print("sines = ", sorted_sines)

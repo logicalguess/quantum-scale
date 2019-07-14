@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
     def test_negative_value_count():
         n_key = 3
-        n_value = 3
+        n_value = 2
         n_precision = 5
 
         f = [0, -2, -1, 0, -1, 1, 0, 0]
