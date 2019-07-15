@@ -1,6 +1,6 @@
 import numpy as np
 
-from circuit_util import on_match_ry, controlled, cxzx, cry, czxzx, cx, controlled_X, oracle_first_bit_one
+from circuit_util import on_match_ry, controlled, czxzx, controlled_X, oracle_first_bit_one
 from quantum_dictionary import QDictionary
 
 class QFunctionDictionary(QDictionary):
@@ -25,6 +25,17 @@ class QFunctionDictionary(QDictionary):
     def random(key_bits, value_bits):
         rs = np.random.random(2**value_bits)
         p = rs/rs.sum()
+        freq = QFunctionDictionary.distribution_to_frequency(key_bits, p)[1]
+        f = QFunctionDictionary.frequency_to_function(key_bits, freq)
+        return QDictionary(key_bits, value_bits, 0, f, QFunctionDictionary.prepare)
+
+    @staticmethod
+    def poisson(key_bits, value_bits, rate):
+        from scipy.stats import poisson
+        rv = poisson(rate)
+        ps = [rv.pmf(i) for i in range(2**value_bits)]
+        print(ps)
+        p = ps/sum(ps)
         freq = QFunctionDictionary.distribution_to_frequency(key_bits, p)[1]
         f = QFunctionDictionary.frequency_to_function(key_bits, freq)
         return QDictionary(key_bits, value_bits, 0, f, QFunctionDictionary.prepare)
@@ -136,8 +147,13 @@ if __name__ == "__main__":
         qd = QFunctionDictionary.random(5, 3)
         qd.get_value_distribution()
 
+    def test_poisson_distribution():
+        qd = QFunctionDictionary.poisson(5, 3, rate=3)
+        qd.get_value_distribution()
+
     # test_value_for_key()
-    test_negative_value_count()
+    # test_negative_value_count()
     # test_distribution_value()
     # test_random_distribution()
+    test_poisson_distribution()
     # test_value_count()
