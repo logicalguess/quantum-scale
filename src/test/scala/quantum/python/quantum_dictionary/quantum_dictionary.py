@@ -3,7 +3,7 @@ from qiskit import QuantumRegister, QuantumCircuit
 import numpy as np
 import math
 
-from circuit_util import controlled_ry, qft, iqft, grover, oracle0, diffusion, cxzx, on_match_ry, get_oracle, oracle_first_bit_one
+from circuit_util import qft, iqft, grover, oracle0, diffusion, get_oracle, oracle_first_bit_one
 from util import get_probs, plot_histogram
 
 
@@ -55,10 +55,19 @@ class QDictionary():
         precision = QuantumRegister(self.precision_bits)
         circuit = QuantumCircuit(precision, key, value, ancilla, extra)
 
-        circuit.h(key)
-        circuit.h(value)
+        # TODO make arguments
+        def pre_process():
+            circuit.h(key)
+            circuit.h(value)
+            circuit.h(precision)
 
-        circuit.h(precision)
+            # eigenvector for Ry
+            circuit.rx(np.pi/2, ancilla[0])
+            circuit.z(ancilla[0])
+            circuit.x(ancilla[0])
+
+        def post_process():
+            circuit.rx(-np.pi/2, ancilla[0])
 
         def A():
             # controlled rotations
@@ -73,10 +82,8 @@ class QDictionary():
             # controlled rotations
             self.unprepare(f, circuit, key, value, ancilla, extra)
 
-        circuit.rx(np.pi/2, ancilla[0])
-        circuit.z(ancilla[0])
-        circuit.x(ancilla[0])
-
+        # amplitude estimation (counting) algorithm
+        pre_process()
         for i in range(len(precision)):
             for _ in range(2**i):
                 # oracle
@@ -90,8 +97,7 @@ class QDictionary():
                 # diffusion(circuit, [precision[i]], [key[i] for i in range(len(key))] + [value[i] for i in range(len(value))], extra)
         # inverse fourier tranform
         iqft(circuit, [precision[i] for i in range(len(precision))])
-
-        circuit.rx(-np.pi/2, ancilla[0])
+        post_process()
 
         return circuit
 
