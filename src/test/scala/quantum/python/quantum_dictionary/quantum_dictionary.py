@@ -26,21 +26,28 @@ class QDictionary():
         extra = QuantumRegister(max(n_qbits, c_qbits))
         circuit = QuantumCircuit(key, value, ancilla, extra)
 
-        circuit.h(key)
-        circuit.h(value)
+        def prepare_once():
+            circuit.h(key)
+            circuit.h(value)
+
+            circuit.rx(np.pi/2, ancilla[0])
+            circuit.z(ancilla[0])
+            circuit.x(ancilla[0])
+
+        def unprepare_once():
+            circuit.rx(-np.pi/2, ancilla[0])
+
+        prepare_once()
 
         if search_key is not None:
             iterations = 1 if n_qbits == 2 else 2**(math.floor(n_qbits/2))
             for i in range(iterations):
                 grover(search_key, circuit, key, extra, ancilla)
 
-        circuit.rx(np.pi/2, ancilla[0])
-        circuit.z(ancilla[0])
-        circuit.x(ancilla[0])
-
         self.prepare(f, circuit, key, value, ancilla, extra)
 
-        circuit.rx(-np.pi/2, ancilla[0])
+        unprepare_once()
+
 
         return circuit
 

@@ -77,8 +77,8 @@ def cxzx(qc, q_control, q_target):
 
 
 def grover(m, qc, q, e, a):
-    qc.x(a[0])
-    qc.h(a[0])
+    # qc.x(a[0])
+    # qc.h(a[0])
 
     n = len(q)
     for i in range(0, n):
@@ -86,8 +86,8 @@ def grover(m, qc, q, e, a):
             qc.x(q[n - i - 1])
 
     # oracle
-    controlled_X(qc, q, e, a)
-    # controlled(qc, q, e, a, c_gate = lambda qc, ctrl, tgt: czxzx(qc, ctrl, tgt))
+    # controlled_X(qc, q, e, a)
+    controlled(qc, q, e, a, c_gate = lambda qc, ctrl, tgt: czxzx(qc, ctrl, tgt))
 
     # diffusion
     for i in range(0, len(q)):
@@ -105,8 +105,8 @@ def grover(m, qc, q, e, a):
         if is_bit_not_set(m, i):
             qc.x(q[n - i - 1])
 
-    qc.h(a[0])
-    qc.x(a[0])
+    # qc.h(a[0])
+    # qc.x(a[0])
 
 
 def get_oracle(m):
