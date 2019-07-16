@@ -5,6 +5,7 @@ from circuit_util import controlled_ry, iqft
 
 from quantum_dictionary import QDictionary
 
+
 class QSumDictionary(QDictionary):
     # A Quantum Dictionary built from a function
 
