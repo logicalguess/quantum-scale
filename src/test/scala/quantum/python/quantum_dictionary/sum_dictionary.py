@@ -13,7 +13,7 @@ class QSumDictionary(QDictionary):
         # controlled rotations only n powers of 2
         for i in range(len(value)):
             for j in range(len(key)):
-                controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * f[len(key) - 1 - j],
+                controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * f[j],
                               [key[j], value[i]], extra, ancilla[0])  # sum on powers of 2
 
     def __init__(self, key_bits, value_bits, f):
@@ -23,7 +23,7 @@ class QSumDictionary(QDictionary):
         self.get_value_for_key(2 ** self.key_bits - 1)
 
     def is_sum_negative(self):
-        sum = self.get_value_for_key(2 ** self.key_bits - 1)
+        sum = self.get_value_for_key(2 ** self.key_bits - 1, True)
         return True if sum[self.key_bits] == '1' else False
 
 

@@ -47,7 +47,7 @@ class QDictionary():
 
         return circuit
 
-    def __build_circuit_count(self, n_qbits, c_qbits, f, oracle = oracle0):
+    def __build_circuit_count(self, n_qbits, c_qbits, f, oracle):
         key = QuantumRegister(n_qbits)
         value = QuantumRegister(c_qbits)
         ancilla = QuantumRegister(1)
@@ -81,7 +81,8 @@ class QDictionary():
             for _ in range(2**i):
                 # oracle
                 A()
-                oracle(circuit, [precision[i]], value, extra, ancilla)
+                if oracle is not None:
+                    oracle(circuit, [precision[i]], value, extra, ancilla)
                 A_dagger()
 
                 # diffusion
