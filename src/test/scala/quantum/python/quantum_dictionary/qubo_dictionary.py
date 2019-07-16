@@ -11,7 +11,7 @@ class QQUBODictionary(QDictionary):
     @staticmethod
     def prepare(d, circuit, key, value, ancilla, extra):
         for i in range(len(value)):
-            if d.get(-1, 0) !=  0:
+            if d.get(-1, 0) != 0:
                 cry(1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[-1], circuit, value[i], ancilla[0])
             for j in range(len(key)):
                 if d.get(j, 0) != 0:
@@ -164,8 +164,8 @@ if __name__ == "__main__":
 
 
     # test_qubo_2()
-    # test_qubo_2_1()
-    test_qubo_2_2()
+    test_qubo_2_1()
+    # test_qubo_2_2()
     # test_qubo_3()
     # test_fibonacci()
 
