@@ -154,12 +154,13 @@ if __name__ == "__main__":
             print("F(", m, ") = ", fibo)
             return fibo
 
-        for m in range(2, 5):
+        for m in range(2, 6):
             fibo(m)
 
         # F( 2 ) =  3
         # F( 3 ) =  5
         # F( 4 ) =  8
+        # F( 5 ) =  13
 
 
     # test_qubo_2()
