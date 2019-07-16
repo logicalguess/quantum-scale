@@ -53,7 +53,7 @@ class QDictionary():
         circuit = QuantumCircuit(precision, key, value, ancilla, extra)
 
         # TODO make arguments
-        def pre_process():
+        def prepare_once():
             circuit.h(key)
             circuit.h(value)
             circuit.h(precision)
@@ -63,11 +63,11 @@ class QDictionary():
             circuit.z(ancilla[0])
             circuit.x(ancilla[0])
 
-        def post_process():
+        def unprepare_once():
             circuit.rx(-np.pi/2, ancilla[0])
 
         # amplitude estimation (counting) algorithm
-        pre_process()
+        prepare_once()
         for i in range(len(precision)):
             for _ in range(2**i):
                 # oracle
@@ -81,7 +81,7 @@ class QDictionary():
                 # diffusion(circuit, [precision[i]], [key[i] for i in range(len(key))] + [value[i] for i in range(len(value))], extra)
         # inverse fourier tranform
         iqft(circuit, [precision[i] for i in range(len(precision))])
-        post_process()
+        unprepare_once()
 
         return circuit
 
