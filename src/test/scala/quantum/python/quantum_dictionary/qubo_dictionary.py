@@ -14,7 +14,8 @@ class QQUBODictionary(QDictionary):
             if d.get(-1, 0) > 0:
                 cry(1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[-1], circuit, value[i], ancilla[0])
             for j in range(len(key)):
-                controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[j],
+                if d.get(j, 0) > 0:
+                    controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[j],
                               [key[j], value[i]], extra, ancilla[0])  # sum on powers of 2
 
         for i in range(len(value)):
@@ -28,7 +29,8 @@ class QQUBODictionary(QDictionary):
             if d.get(-1, 0) > 0:
                 cry(-1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[-1], circuit, value[i], ancilla[0])
             for j in range(len(key)):
-                controlled_ry(circuit, -1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[j],
+                if d.get(j, 0) > 0:
+                    controlled_ry(circuit, -1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[j],
                               [key[j], value[i]], extra, ancilla[0])  # sum on powers of 2
 
         for i in range(len(value)):
@@ -141,9 +143,29 @@ if __name__ == "__main__":
         # sines =  [(4.0, 1.003512)]
         # Best Estimate =  4
 
+    def test_fibonacci():
+        def fibo(m):
+            d = {}
+            for i in range(m-1):
+                d[(i, i+1)] = 1
+
+            qd = QQUBODictionary(m, int(math.log2(m - 1)) + 1, 6, d)
+            fibo = qd.get_count_for_value(0)
+            print("F(", m, ") = ", fibo)
+            return fibo
+
+        for m in range(2, 5):
+            fibo(m)
+
+        # F( 2 ) =  3
+        # F( 3 ) =  5
+        # F( 4 ) =  8
+
+
     # test_qubo_2()
-    test_qubo_2_1()
+    # test_qubo_2_1()
     # test_qubo_2_2()
     # test_qubo_3()
+    test_fibonacci()
 
 
