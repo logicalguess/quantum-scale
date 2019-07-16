@@ -11,8 +11,6 @@ class QFiboDictionary(QDictionary):
     @staticmethod
     def prepare(d, circuit, key, value, ancilla, extra):
         for i in range(len(value)):
-            if isinstance(d, dict) and d.get(-1, 0) > 0:
-                cry(1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[-1], circuit, value[i], ancilla[0])
             for j in range(len(key) - 1):
                 controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1),
                               [key[j], key[j+1], value[i]], extra, ancilla[0])  # sum on powers of 2
@@ -20,8 +18,6 @@ class QFiboDictionary(QDictionary):
     @staticmethod
     def unprepare(d, circuit, key, value, ancilla, extra):
         for i in range(len(value)):
-            if isinstance(d, dict) and d.get(-1, 0) > 0:
-                cry(-1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[-1], circuit, value[i], ancilla[0])
             for j in range(len(key) - 1):
                 controlled_ry(circuit, -1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1),
                               [key[j], key[j+1], value[i]], extra, ancilla[0])  # sum on powers of 2
@@ -37,7 +33,7 @@ if __name__ == "__main__":
         n_value = int(math.log2(n_key - 1)) + 1
 
         qd = QFiboDictionary(n_key, n_value, precision_bits, None)
-        qd.get_value_for_key()
+        qd.get_value_for_key(None)
         fibo = qd.get_zero_count()
         print("F(", n, ") = ", fibo)
         return fibo
@@ -61,6 +57,6 @@ if __name__ == "__main__":
     # 7 = 111 -> 10 = 2
     # F( 3 ) =  5
 
-    fibo(5, 5)
+    # fibo(5, 5)
     # F( 5 ) =  13
 
