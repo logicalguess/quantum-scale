@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-from circuit_util import controlled_ry, cry
+from circuit_util import controlled_ry, cry, qft, iqft
 
 from quantum_dictionary import QDictionary
 
@@ -9,14 +9,18 @@ class QFiboDictionary(QDictionary):
     # A Quantum Dictionary built from a function
 
     @staticmethod
-    def prepare(d, circuit, key, value, ancilla, extra):
+    def prepare(_, circuit, key, value, ancilla, extra):
         for i in range(len(value)):
             for j in range(len(key) - 1):
                 controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1),
                               [key[j], key[j+1], value[i]], extra, ancilla[0])  # sum on powers of 2
 
+        iqft(circuit, [value[i] for i in range(len(value))])
+
     @staticmethod
-    def unprepare(d, circuit, key, value, ancilla, extra):
+    def unprepare(_, circuit, key, value, ancilla, extra):
+        qft(circuit, [value[i] for i in range(len(value))])
+
         for i in range(len(value)):
             for j in range(len(key) - 1):
                 controlled_ry(circuit, -1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1),

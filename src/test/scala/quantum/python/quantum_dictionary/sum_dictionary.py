@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-from circuit_util import controlled_ry
+from circuit_util import controlled_ry, iqft
 
 from quantum_dictionary import QDictionary
 
@@ -15,6 +15,8 @@ class QSumDictionary(QDictionary):
             for j in range(len(key)):
                 controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * f[j],
                               [key[j], value[i]], extra, ancilla[0])  # sum on powers of 2
+
+        iqft(circuit, [value[i] for i in range(len(value))])
 
     def __init__(self, key_bits, value_bits, f):
         QDictionary.__init__(self, key_bits, value_bits, 0, f, QSumDictionary.prepare)

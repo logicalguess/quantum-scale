@@ -1,6 +1,6 @@
 import numpy as np
 
-from circuit_util import on_match_ry
+from circuit_util import on_match_ry, qft, iqft
 from quantum_dictionary import QDictionary
 
 class QFunctionDictionary(QDictionary):
@@ -12,8 +12,12 @@ class QFunctionDictionary(QDictionary):
             for k in range(2**len(key)):
                 on_match_ry(len(key), k, circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i+1) * f[k], [key[j] for j in range(0, len(key))] + [value[i]], extra, ancilla)
 
+        iqft(circuit, [value[i] for i in range(len(value))])
+
     @staticmethod
     def unprepare(f, circuit, key, value, ancilla, extra):
+        qft(circuit, [value[i] for i in range(len(value))])
+
         for i in range(len(value)):
             for k in range(2**len(key)):
                 on_match_ry(len(key), k, circuit, -1/2 ** len(value) * 2 * np.pi * 2 ** (i+1) * f[k], [key[j] for j in range(0, len(key))] + [value[i]], extra, ancilla)

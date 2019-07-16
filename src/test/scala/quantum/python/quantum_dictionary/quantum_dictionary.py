@@ -40,9 +40,6 @@ class QDictionary():
 
         self.prepare(f, circuit, key, value, ancilla, extra)
 
-        # inverse fourier tranform
-        iqft(circuit, [value[i] for i in range(len(value))])
-
         circuit.rx(-np.pi/2, ancilla[0])
 
         return circuit
@@ -69,28 +66,15 @@ class QDictionary():
         def post_process():
             circuit.rx(-np.pi/2, ancilla[0])
 
-        def A():
-            # controlled rotations
-            self.prepare(f, circuit, key, value, ancilla, extra)
-            # inverse fourier to retrieve best approximations
-            iqft(circuit, [value[i] for i in range(c_qbits)])
-
-        def A_dagger():
-            # fourier transform
-            qft(circuit, [value[i] for i in range(c_qbits)])
-
-            # controlled rotations
-            self.unprepare(f, circuit, key, value, ancilla, extra)
-
         # amplitude estimation (counting) algorithm
         pre_process()
         for i in range(len(precision)):
             for _ in range(2**i):
                 # oracle
-                A()
+                self.prepare(f, circuit, key, value, ancilla, extra)
                 if oracle is not None:
                     oracle(circuit, [precision[i]], value, extra, ancilla)
-                A_dagger()
+                self.unprepare(f, circuit, key, value, ancilla, extra)
 
                 # diffusion
                 diffusion(circuit, [precision[i]], [key[i] for i in range(len(key))], extra) # if f(0) = 0

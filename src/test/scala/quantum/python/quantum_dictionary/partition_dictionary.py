@@ -1,6 +1,6 @@
 import numpy as np
 
-from circuit_util import controlled_ry
+from circuit_util import controlled_ry, qft, iqft
 
 from quantum_dictionary import QDictionary
 
@@ -15,9 +15,12 @@ class QPartitionDictionary(QDictionary):
                 controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * f[j],
                               [key[j], value[i]], extra, ancilla[0])  # sum on powers of 2
 
+        iqft(circuit, [value[i] for i in range(len(value))])
 
     @staticmethod
     def unprepare(f, circuit, key, value, ancilla, extra):
+        qft(circuit, [value[i] for i in range(len(value))])
+
         # controlled rotations only n powers of 2
         for i in range(len(value)):
             for j in range(len(key)):

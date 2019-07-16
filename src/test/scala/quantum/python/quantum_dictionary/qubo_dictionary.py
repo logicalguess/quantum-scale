@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-from circuit_util import controlled_ry, cry, oracle_first_bit_one
+from circuit_util import controlled_ry, cry, qft, iqft, oracle_first_bit_one
 
 from quantum_dictionary import QDictionary
 
@@ -23,8 +23,12 @@ class QQUBODictionary(QDictionary):
                 if isinstance(k, tuple):
                     controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i+1) * v, [key[k[0]], key[k[1]]] + [value[i]], extra, ancilla)
 
+        iqft(circuit, [value[i] for i in range(len(value))])
+
     @staticmethod
     def unprepare(d, circuit, key, value, ancilla, extra):
+        qft(circuit, [value[i] for i in range(len(value))])
+
         for i in range(len(value)):
             if d.get(-1, 0) != 0:
                 cry(-1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[-1], circuit, value[i], ancilla[0])
@@ -44,6 +48,7 @@ class QQUBODictionary(QDictionary):
     def get_count_for_value_less_than(self, v):
         self.f[-1] = -v
         return self.get_value_count(oracle_first_bit_one)
+
 
 if __name__ == "__main__":
 
