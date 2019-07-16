@@ -41,7 +41,7 @@ if __name__ == "__main__":
         n_precision = 5
 
         qd = QPartitionDictionary(n_key, n_value, n_precision, f)
-        qd.get_value_for_key(None, True)
+        # qd.get_value_for_key(None, True)
         print("Number of zero sum subsets = ", qd.get_zero_sum_count())
 
     def test_partition():

@@ -164,6 +164,11 @@ class QDictionary():
         return self.get_value_count(oracle_first_bit_one)
 
     def get_value_count(self, oracle):
+        count = int(round(2**self.key_bits*self.get_value_amplitude(oracle)))
+        print("Count =", count)
+        return count
+
+    def get_value_amplitude(self, oracle):
         circuit = self.__build_circuit_count(self.key_bits, self.value_bits, self.f, oracle)
         probs = get_probs((circuit, None, None), 'sim', False)
         ordered_probs = sorted(probs.items(), key=lambda x: x[1], reverse=True)
@@ -173,19 +178,20 @@ class QDictionary():
         counts = sorted(list(map(lambda item: (int(item[0][:self.precision_bits], 2), item[1]), ordered_probs)), key=lambda x: x[1], reverse=True)
         print("counts = ", counts)
 
-        combined_counts = {}
+        combined_frequency = {}
         for k, v in counts:
-            combined_counts[k] = np.round(combined_counts.get(k, 0) + v, 4)
-        sorted_counts = sorted(combined_counts.items(), key=lambda x: x[1], reverse=True)
-        print("combined_counts = ", sorted_counts)
+            combined_frequency[k] = np.round(combined_frequency.get(k, 0) + v, 4)
+        sorted_counts = sorted(combined_frequency.items(), key=lambda x: x[1], reverse=True)
+        print("combined_frequencies = ", sorted_counts)
 
         sines = {}
         for k, v in counts:
-            key = 2**self.key_bits*np.round(np.cos(np.pi*k/2**self.precision_bits)**2, 4)
+            key = np.round(np.cos(np.pi*k/2**self.precision_bits)**2, 4)
             sines[key] = sines.get(key, 0) + v
         sorted_sines = sorted(sines.items(), key=lambda x: x[1], reverse=True)
         print("sines = ", sorted_sines)
 
-        estimate = int(round(sorted_sines[0][0]))
-        print("Best Estimate = ", estimate)
+        estimate = round(sorted_sines[0][0], 4)
+        print("Amplitude Estimate = ", estimate)
+        print("Uniformly Scaled Estimate = ", 2**self.key_bits*estimate)
         return estimate
