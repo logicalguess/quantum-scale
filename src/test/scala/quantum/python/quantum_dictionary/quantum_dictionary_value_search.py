@@ -32,7 +32,7 @@ class QValueSearchDictionary():
         key = QuantumRegister(n_qbits)
         value = QuantumRegister(c_qbits)
         ancilla = QuantumRegister(1)
-        extra = QuantumRegister(2*max(n_qbits, c_qbits))
+        extra = QuantumRegister(max(n_qbits, c_qbits) + 1)
         circuit = QuantumCircuit(key, value, ancilla, extra)
 
         def prepare_once():
