@@ -55,16 +55,16 @@ class QValueSearchDictionary():
 
         self.prepare(f, circuit, key, value, ancilla, extra)
 
-        unprepare_once()
-
         if search_key is not None:
             for i in range(1):
                 self.grover(search_key, circuit, [key[i] for i in range(len(key))] + [value[i] for i in range(len(value))],
-                    [value[i] for i in range(len(value))], extra, ancilla)
+                            [value[i] for i in range(len(value))], extra, ancilla)
         else:
             for i in range(1):
-                self.grover_n(circuit, [key[i] for i in range(len(key))] + [value[i] for i in range(len(value))],
-                            [value[0]], extra, ancilla)
+                self.grover_n(circuit, key, value, [value[0]], extra, ancilla)
+            # self.prepare(f, circuit, key, value, ancilla, extra)
+
+        unprepare_once()
 
         return circuit
 
@@ -100,13 +100,17 @@ class QValueSearchDictionary():
         # qc.h(a[0])
         # qc.x(a[0])
 
-    def grover_n(self, qc, all, q, e, a):
+    def grover_n(self, qc, key, value, q, e, a):
+        all = [key[i] for i in range(len(key))] + [value[i] for i in range(len(value))]
+        # self.prepare(f, qc, key, value, a, e)
+
         qc.x(a[0])
         qc.h(a[0])
 
         # oracle
-        controlled_X(qc, q, e, a)
-        # controlled(qc, q, e, a, c_gate = lambda qc, ctrl, tgt: czxzx(qc, ctrl, tgt))
+        # controlled_X(qc, q, e, a)
+        controlled(qc, q, e, a, c_gate = lambda qc, ctrl, tgt: czxzx(qc, ctrl, tgt))
+        self.unprepare(f, qc, key, value, a, e)
 
         # diffusion
         for i in range(0, len(all)):
@@ -123,6 +127,7 @@ class QValueSearchDictionary():
         qc.h(a[0])
         qc.x(a[0])
 
+        self.prepare(f, qc, key, value, a, e)
 
     def __process(self, n_bits, c_bits, probs, neg=False):
         kvs = {}
@@ -135,7 +140,8 @@ class QValueSearchDictionary():
             if neg is True and value >= 2**(c_bits-1):
                 value = value - 2**c_bits
             entries[key] = '%d' % key + " = " + b[0:n_bits] + " -> " + b[n_bits:n_bits + c_bits] + " = " + '%d' % value
-            outcomes['%d' %  key + " -> " + '%d' % value] = c
+            idx = '%d' % key + " -> " + '%d' % value
+            outcomes[idx] = outcomes.get(idx, 0) + c
 
         # for v in sorted(entries.items(), key=lambda x: x[1]):
         #     print(v[1])
