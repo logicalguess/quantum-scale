@@ -2,7 +2,7 @@ import numpy as np
 from qiskit import QuantumRegister, QuantumCircuit
 
 
-def build_circuit(n_qbits, c_qbits, f, prepare, unprepare, oracle):
+def build_circuit(n_qbits, c_qbits, f, prepare, unprepare, oracle, iterations):
     key = QuantumRegister(n_qbits)
     value = QuantumRegister(c_qbits)
     ancilla = QuantumRegister(1)
@@ -24,7 +24,7 @@ def build_circuit(n_qbits, c_qbits, f, prepare, unprepare, oracle):
 
     # prepare(f, circuit, key, value, ancilla, extra)
 
-    for i in range(1):
+    for i in range(iterations):
         iterate(circuit, key, value, value, extra, ancilla, prepare, unprepare, oracle)
 
     prepare(f, circuit, key, value, ancilla, extra)
@@ -251,11 +251,53 @@ if __name__ == "__main__":
                             [key[j] for j in range(0, len(key))] + [value[i]], extra, ancilla)
 
 
+    def prepare_quadratic(d, circuit, key, value, ancilla, extra):
+        for i in range(len(value)):
+            if d.get(-1, 0) != 0:
+                cry(1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[-1], circuit, value[i], ancilla[0])
+            for j in range(len(key)):
+                if d.get(j, 0) != 0:
+                    controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[j],
+                                  [key[j], value[i]], extra, ancilla[0])  # sum on powers of 2
+
+        for i in range(len(value)):
+            for k, v in d.items():
+                if isinstance(k, tuple):
+                    controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i+1) * v, [key[k[0]], key[k[1]]] + [value[i]], extra, ancilla)
+
+        iqft(circuit, [value[i] for i in range(len(value))])
+
+
+    def unprepare_quadratic(d, circuit, key, value, ancilla, extra):
+        qft(circuit, [value[i] for i in range(len(value))])
+
+        for i in range(len(value)):
+            if d.get(-1, 0) != 0:
+                cry(-1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[-1], circuit, value[i], ancilla[0])
+            for j in range(len(key)):
+                if d.get(j, 0) != 0:
+                    controlled_ry(circuit, -1/2 ** len(value) * 2 * np.pi * 2 ** (i + 1) * d[j],
+                                  [key[j], value[i]], extra, ancilla[0])  # sum on powers of 2
+
+        for i in range(len(value)):
+            for k, v in d.items():
+                if isinstance(k, tuple):
+                    controlled_ry(circuit, -1/2 ** len(value) * 2 * np.pi * 2 ** (i+1) * v, [key[k[0]], key[k[1]]] + [value[i]], extra, ancilla)
+
+    def oracle_first_bit_one_trick(qc, search, e, a):
+        qc.x(a[0])
+        qc.h(a[0])
+
+        controlled(qc, [search[0]], e, a)
+
+        qc.x(a[0])
+        qc.h(a[0])
+
     def oracle_first_bit_one(qc, search, e, a):
         controlled(qc, [search[0]], e, a, c_gate = czxzx)
 
     def get_oracle(m):
-        def oracle(qc, q, e, a):
+        def o(qc, q, e, a):
             n = len(q)
             for i in range(0, n):
                 if is_bit_not_set(m, i):
@@ -267,17 +309,39 @@ if __name__ == "__main__":
                 if is_bit_not_set(m, i):
                     qc.x(q[n - i - 1])
 
-        return oracle
+        return o
 
-    n_key = 3
-    n_value = 4
-
-    f = [0, 3, 0, -7, 0, -5, 7, -7]
 
     # oracle = get_oracle(0)
     oracle = oracle_first_bit_one
 
-    circuit = build_circuit(n_key, n_value, f, prepare_function, unprepare_function, oracle)
+    # function
 
-    get_value_for_key(circuit, n_key, n_value, True)
-    # get_value_distribution(circuit, n_key, n_value, True)
+    # n_key = 3
+    # n_value = 4
+    # f = [0, 3, 0, -7, 0, -5, 7, -7]
+    # circuit = build_circuit(n_key, n_value, f, prepare_function, unprepare_function, oracle, 1)
+    # [(-7, 0.5625), (-5, 0.28125), (0, 0.09375), (3, 0.03125), (7, 0.03125)]
+
+    # qubo
+    # f(x_0, x_1, x_2) = 12*x_0 + 1*x_1 - 15*x_2 + 3*x_0*x_1 - 9*x_1*x_2
+    # f(0, 1, 1) = 1 - 15 - 9 = -23
+    #
+    # 0 = 000 -> 000000 = 0
+    # 1 = 001 -> 110001 = -15
+    # 2 = 010 -> 000001 = 1
+    # 3 = 011 -> 101001 = -23
+    # 4 = 100 -> 001100 = 12
+    # 5 = 101 -> 111101 = -3
+    # 6 = 110 -> 010000 = 16
+    # 7 = 111 -> 111000 = -8
+
+    n_key = 3
+    n_value = 6
+    f = {-1: 3, 0: 12, 1: 1, 2: -15, (0, 1): 3, (1, 2): -9}
+    oracle = oracle_first_bit_one
+    circuit = build_circuit(n_key, n_value, f, prepare_quadratic, unprepare_quadratic, oracle, 1)
+    # [(-12, 0.28125), (-20, 0.28125), (-5, 0.28125), (0, 0.03125), (4, 0.03125), (3, 0.03125), (19, 0.03125), (15, 0.03125)]
+
+    # get_value_for_key(circuit, n_key, n_value, True)
+    get_value_distribution(circuit, n_key, n_value, True)
