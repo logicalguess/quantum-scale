@@ -104,8 +104,8 @@ class QValueSearchDictionary():
         all = [key[i] for i in range(len(key))] + [value[i] for i in range(len(value))]
         # self.prepare(f, qc, key, value, a, e)
 
-        qc.x(a[0])
-        qc.h(a[0])
+        # qc.x(a[0])
+        # qc.h(a[0])
 
         # oracle
         # controlled_X(qc, q, e, a)
@@ -124,8 +124,8 @@ class QValueSearchDictionary():
             qc.x(all[i])
             qc.h(all[i])
 
-        qc.h(a[0])
-        qc.x(a[0])
+        # qc.h(a[0])
+        # qc.x(a[0])
 
         self.prepare(f, qc, key, value, a, e)
 
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     n_key = 3
     n_value = 4
 
-    f = [0, -1, -2, 3, 4, 5, 6, 7]
+    f = [0, -1, -2, 3, 4, 5, -6, 7]
 
     qd = QValueSearchDictionary(n_key, n_value, f)
 
