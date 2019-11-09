@@ -23,6 +23,9 @@ class QQUBODictionary(QDictionary):
                 if isinstance(k, tuple):
                     controlled_ry(circuit, 1/2 ** len(value) * 2 * np.pi * 2 ** (i+1) * v, [key[k[0]], key[k[1]]] + [value[i]], extra, ancilla)
 
+        # cry(1/2 ** len(value) * 2 * np.pi * 2 * -1, circuit, value[0], ancilla[0]) # flips 0 sign bit to 1
+        # circuit.u1(1/2 ** len(value) * 2 * np.pi * 1, value[0])
+
         iqft(circuit, [value[i] for i in range(len(value))])
 
     @staticmethod
@@ -169,9 +172,9 @@ if __name__ == "__main__":
 
 
     # test_qubo_2()
-    test_qubo_2_1()
+    # test_qubo_2_1()
     # test_qubo_2_2()
-    # test_qubo_3()
+    test_qubo_3()
     # test_fibonacci()
 
 
