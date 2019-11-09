@@ -1,12 +1,23 @@
 import numpy as np
 import math
 
-from circuit_util import controlled_ry, cry, qft, iqft, oracle_first_bit_one
+from circuit_util import controlled_X, controlled_ry, cry, qft, iqft, oracle_first_bit_one
 
 from quantum_dictionary import QDictionary
 
 class QQUBODictionary(QDictionary):
     # A Quantum Dictionary built from a function
+
+    @staticmethod
+    def shift_negatives_up(shift, circuit, extra, value):
+        l = len(value)
+        for power in range(math.ceil(math.log2(shift)) + 1):
+            if shift & 1 << power != 0:
+                for j in reversed(range(0, l - power)):
+                    tgt = l - 1 - power - j
+                    ctrl = list(set([0] + list(range(tgt + 1, l - power))))
+                    # print(tgt, ctrl)
+                    controlled_X(circuit, [value[i] for i in ctrl], extra, [value[tgt]])
 
     @staticmethod
     def prepare(d, circuit, key, value, ancilla, extra):
@@ -25,8 +36,11 @@ class QQUBODictionary(QDictionary):
 
         # cry(1/2 ** len(value) * 2 * np.pi * 2 * -1, circuit, value[0], ancilla[0]) # flips 0 sign bit to 1
         # circuit.u1(1/2 ** len(value) * 2 * np.pi * 1, value[0])
+        # controlled_X(circuit, [value[0]] + [ value[i] for i in range(len(value) - bit, len(value))], extra, value[len(value) - bit])
 
         iqft(circuit, [value[i] for i in range(len(value))])
+
+        # QQUBODictionary.shift_negatives_up(10, circuit, extra, value)
 
     @staticmethod
     def unprepare(d, circuit, key, value, ancilla, extra):
