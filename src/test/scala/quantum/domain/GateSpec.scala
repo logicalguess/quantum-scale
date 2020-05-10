@@ -349,6 +349,26 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert((b(S1) - a(S1)).norm2 < 0.1)
   }
 
+  "H" should "create inner product" in forAll { state:  QState =>
+
+    val ns = math.sqrt(state(S0).norm2 + state(S1).norm2)
+    val a0 = state(S0).re /ns
+    val a1 = state(S0).im /ns
+    val b0 = state(S1).re /ns
+    val b1 = state(S1).im /ns
+
+    assert((a0*a0 + b0*b0 + a1*a1 + b1*b1 - 1).abs < 0.1)
+
+    val state_n = QState(List(Word(S0) -> Complex(a0, a1), Word(S1) -> Complex(b0, b1)))
+    val s: QState = state_n >>= H
+
+    val dot1 = 0.5*(state_n(S0) + state_n(S1)).norm2
+    assert((s(S0).norm2 - dot1).norm2 < 0.1)
+
+    val dot = a0*b0 + a1*b1
+    assert((s(S0).norm2 - 0.5 - dot).abs < 0.1)
+  }
+
   "Rz(theta)" should "be a weighted average of I and Rz(pi)" in forAll { ts: (Double, QState) =>
     val theta = ts._1
     val state = ts._2
