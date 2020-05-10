@@ -403,14 +403,14 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     val a10 = state_n(Word(List(S1, S0)))
     val a11 = state_n(Word(List(S1, S1)))
 
-//    val state: QState = state_n >>= wire(0, H)
+    val state: QState = state_n >>= wire(0, H)
 
-    val state = QState(List(
-      Word(List(S0, S0)) -> (a00 + a10)/math.sqrt(2),
-      Word(List(S0, S1)) -> (a00 - a10)/math.sqrt(2),
-      Word(List(S1, S0)) -> (a01 + a11)/math.sqrt(2),
-      Word(List(S1, S1)) -> (a01 - a11)/math.sqrt(2)
-    ))
+//    val state = QState(List(
+//      Word(List(S0, S0)) -> (a00 + a10)/math.sqrt(2),
+//      Word(List(S1, S0)) -> (a00 - a10)/math.sqrt(2),
+//      Word(List(S0, S1)) -> (a01 + a11)/math.sqrt(2),
+//      Word(List(S1, S1)) -> (a01 - a11)/math.sqrt(2)
+//    ))
 
     val s00 = state(Word(List(S0, S0)))
     val s01 = state(Word(List(S0, S1)))
@@ -420,8 +420,8 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert((s00.norm2 + s01.norm2 + s10.norm2 + s11.norm2 - 1).abs < 0.1)
 
     val d = dot(a00, a10) + dot(a01, a11)
-    assert((s00.norm2 + s10.norm2 - 0.5 - d).abs < 0.1)
-//    println((s00.norm2 + s10.norm2 - d).abs)
+    assert((s00.norm2 + s01.norm2 - 0.5 - d).abs < 0.1)
+//    println((s00.norm2 + s01.norm2 - d).abs)
   }
 
   "Rz(theta)" should "be a weighted average of I and Rz(pi)" in forAll { ts: (Double, QState) =>
