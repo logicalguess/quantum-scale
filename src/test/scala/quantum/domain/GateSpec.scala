@@ -369,6 +369,61 @@ class GateSpec extends FlatSpec with GeneratorDrivenPropertyChecks {
     assert((s(S0).norm2 - 0.5 - dot).abs < 0.1)
   }
 
+  def dot(a: Complex, b: Complex): Double = {
+//    a.re*b.re + a.im*b.im
+    (a*b.conj).re
+  }
+
+  "H" should "create inner product on 1 qubits" in forAll { s: QState =>
+    val norm = math.sqrt(s(S0).norm2 + s(S1).norm2)
+    val state_n = QState(List(
+      Word(List(S0)) -> s(S0) / norm,
+      Word(List(S1)) -> s(S1) / norm
+    ))
+
+    val a = state_n(Word(List(S0)))
+    val b = state_n(Word(List(S1)))
+
+    val state: QState = state_n >>= wire(0, H)
+    val s0 = state(Word(List(S0)))
+    assert((s0.norm2 - 0.5 - dot(a, b)).abs < 0.1)
+  }
+
+  "H" should "create inner product on 2 qubits" in forAll { s: (QState, QState) =>
+    val norm = math.sqrt(s._1(S0).norm2 + s._1(S1).norm2 + s._2(S0).norm2 + s._2(S1).norm2)
+    val state_n = QState(List(
+      Word(List(S0, S0)) -> s._1(S0) / norm,
+      Word(List(S0, S1)) -> s._1(S1) / norm,
+      Word(List(S1, S0)) -> s._2(S0) / norm,
+      Word(List(S1, S1)) -> s._2(S1) / norm
+    ))
+
+    val a00 = state_n(Word(List(S0, S0)))
+    val a01 = state_n(Word(List(S0, S1)))
+    val a10 = state_n(Word(List(S1, S0)))
+    val a11 = state_n(Word(List(S1, S1)))
+
+//    val state: QState = state_n >>= wire(0, H)
+
+    val state = QState(List(
+      Word(List(S0, S0)) -> (a00 + a10)/math.sqrt(2),
+      Word(List(S0, S1)) -> (a00 - a10)/math.sqrt(2),
+      Word(List(S1, S0)) -> (a01 + a11)/math.sqrt(2),
+      Word(List(S1, S1)) -> (a01 - a11)/math.sqrt(2)
+    ))
+
+    val s00 = state(Word(List(S0, S0)))
+    val s01 = state(Word(List(S0, S1)))
+    val s10 = state(Word(List(S1, S0)))
+    val s11 = state(Word(List(S1, S1)))
+
+    assert((s00.norm2 + s01.norm2 + s10.norm2 + s11.norm2 - 1).abs < 0.1)
+
+    val d = dot(a00, a10) + dot(a01, a11)
+    assert((s00.norm2 + s10.norm2 - 0.5 - d).abs < 0.1)
+//    println((s00.norm2 + s10.norm2 - d).abs)
+  }
+
   "Rz(theta)" should "be a weighted average of I and Rz(pi)" in forAll { ts: (Double, QState) =>
     val theta = ts._1
     val state = ts._2
